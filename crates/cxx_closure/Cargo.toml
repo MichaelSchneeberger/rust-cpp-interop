@@ -1,0 +1,10 @@
+[package]
+name = "cxx-closure"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+cxx = "1.0"
+
+[build-dependencies]
+cxx-build = "1.0"
