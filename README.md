@@ -1,6 +1,6 @@
-# Integrate C++ into Rust
+# Integrate *C++* into *Rust*
 
-This project investigates solutions to integrate C++ code into Rust.
+This project investigates solutions to integrate *C++* code into *Rust*.
 
 ## Project structure
 

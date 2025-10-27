@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <rust/cxx.h>
-// #include "cxx-closure/src/main.rs.h"
 
 struct CallbackContext;
 
