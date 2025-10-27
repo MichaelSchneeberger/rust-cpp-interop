@@ -40,19 +40,23 @@ cxx_closure/
 
 ## Proposed solution
 
-The solution that is suggested by *Michael Bryan* (see References below), is to:
+The approach suggested by *Michael Bryan* (see references below) consists of two steps:
 
-* summarize the captured values as an additional argument of the *Rust* closure, and
-* add a *C++* shim including an additional argument `CallbackContext` to represent the captured values:
+* Move the captured values into an additional argument of the *Rust* closure
+* Introduce a *C++* shim function that accepts both the callback and a `CallbackContext` object carrying those captured values:
 
     ```cpp
-    void c_take_callback(rust::Fn<void(rust::Box<CallbackContext>)> callback, rust::Box<CallbackContext> ctx) {
+    void c_take_callback(
+      rust::Fn<void(rust::Box<CallbackContext>)> callback,
+      rust::Box<CallbackContext> ctx
+    ) {
       callback(std::move(ctx));
     }
 
     ```
 
-The disadvantage of this approach is that a shim function must be defined for each captured value type.
+The downside of this pattern is that a dedicated shim must be written for each distinct context type used to represent captured values.
+This adds boilerplate on the C++ side whenever a different closure shape is introduced.
 
 
 ## References
