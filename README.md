@@ -9,6 +9,7 @@ It includes Rust crates demonstrating various interop approaches and their chall
 ```
 rust-cpp-interop/
 ├── crates/
+│   ├── cc_build/           // Integration of C code into Rust
 │   ├── cxx_closure/        // Rust closure with cxx
 │   └── scheduler/          // C++ example project integrated into Rust
 └── docs/
