@@ -2,6 +2,14 @@
 
 This crate explores how to pass *Rust* closure accross the `cxx` FFI boundary into *C++* code.
 
+## Usage
+
+Run the example using:
+
+``` bash
+cargo run --example basic
+```
+
 ## Problem
 
 The concrete problem is as follows:

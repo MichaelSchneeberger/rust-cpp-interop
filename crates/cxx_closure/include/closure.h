@@ -5,4 +5,7 @@
 
 struct CallbackContext;
 
-void c_take_callback(rust::Fn<void(rust::Box<CallbackContext>)> callback, rust::Box<CallbackContext> ctx);
+void c_take_callback(
+  rust::Fn<void(rust::Box<CallbackContext>)> callback,
+  rust::Box<CallbackContext> ctx
+);

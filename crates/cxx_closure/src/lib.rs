@@ -8,7 +8,7 @@
 * */
 
 #[cxx::bridge]
-mod ffi {
+pub mod ffi {
     extern "Rust" {
         type CallbackContext;
     }
@@ -24,11 +24,5 @@ mod ffi {
 }
 
 pub struct CallbackContext {
-    msg: String,
-}
-
-fn main() {
-    ffi::c_take_callback(|ctx| {
-        println!("{}", ctx.msg)
-    }, Box::new(CallbackContext{msg: String::from("hello")}));
+    pub msg: String,
 }
