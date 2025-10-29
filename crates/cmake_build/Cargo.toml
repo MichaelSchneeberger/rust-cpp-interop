@@ -1,0 +1,10 @@
+[package]
+name = "cmake-build"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+
+[build-dependencies]
+bindgen = "0.65.1"
+cmake = "0.1.50"
