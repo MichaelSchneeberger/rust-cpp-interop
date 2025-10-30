@@ -9,9 +9,12 @@ It includes Rust crates demonstrating various interop approaches and their chall
 ```
 rust-cpp-interop/
 ├── crates/
-│   ├── cc_build/           // Integration of C code into Rust
-│   ├── cxx_closure/        // Rust closure with cxx
+│   ├── bindgen_build/      // Small crate illustrating the integration of C code into Rust using bindgen
+│   ├── cc_build/           // Small crate illustrating the integration of C code into Rust
+│   ├── cmake_build/        // Small crate illustrating the integration of C++ code into Rust using cmake
+│   ├── cxx_closure/        // Investigates Rust closures passed accross the FFI boundary using cxx
 │   └── scheduler/          // C++ example project integrated into Rust
+│                           //   The goal is to gain some practical experience with C++ Rust interop topic
 └── docs/
     └── blogpost.md 
 ```
