@@ -43,7 +43,7 @@ Zum Beispiel muss ein std::vector in C++ als C-Array uminterpretiert werden, um 
 Dieses Prinzip wird als *Sanduhr-Modell* (*hourglass model*) bezeichnet:
 Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den beiden Sprachen, während auf beiden Seiten komplexe und typsichere Abstraktionen in c++ und Rust bestehen bleiben können.
 
-<img src="images/hourglass.png" alt="isolated" width="200"/>
+<img src="images/hourglass_model.png" alt="hourglass_model" width="200"/>
 
 Für ein konkretes Project wird mithilfe der C-Schnittstelle ein Application Binary Interface (ABI) definiert.
 Dieses beschreibt, wie Funktionen und Datenstrukturen auf Binärebene zwischen zwei Programmiersprachen ausgetauscht werden.
