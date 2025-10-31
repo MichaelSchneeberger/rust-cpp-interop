@@ -38,18 +38,18 @@ Die dreiteilige Serie über die Integration von C++ in Rust führt unsere allgem
 
 ## Das Sanduhr-Modell
 
-Der C++- und Rust-Code kommunizieren miteinander mittels C-kompatiblen Schnittstelle (wie im Bild unten dargestellt).
+Der C++- und Rust-Code kommunizieren miteinander mittels C-kompatiblen Schnittstelle.
 In C++ enspricht diese Schnittstelle einer Teilmenge der eigenen Standard-Sprachkonstrukte, während sie in Rust über das Modul `std::ffi` (Foreign Function Interface) bereitgestellt wird.
-Datentypen, die in einer Sprache definiert und in der anderen Sprache verwendet werden sollen, müssen zunächst auf C-kompatiblen Grundtypen reduziert und in der anderen Sprache wieder zusammengebaut werden.
-Zum Beispiel muss ein std::vector in C++ als C-Array uminterpretiert werden, um schliesslich in Rust zu einem Vec wieder zusammengesetzt zu werden.
-Dieses Prinzip wird als *Sanduhr-Modell* (*hourglass model*) bezeichnet:
+Datentypen, die in einer Sprache definiert und in der anderen Sprache verwendet werden sollen, müssen zunächst auf C-kompatiblen Grundtypen reduziert (über eine FFI-Bridge) und in der anderen Sprache wieder zusammengebaut werden.
+Zum Beispiel muss ein `std::vector` in C++ als C-Array uminterpretiert werden, um schliesslich in Rust zu einem Vec wieder zusammengesetzt zu werden.
+Dieses Prinzip wird als *Sanduhr-Modell* (hourglass model) bezeichnet (wie im Bild unten dargestellt):
 Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den beiden Sprachen, während die beiden Aussenseiten aus den komplexen und typsicheren Datentypen von Rust und C++ bestehen.
 
 <!-- ![hourglass_model](images/hourglass_model.png) -->
 <img src="images/hourglass_model.png" alt="hourglass_model" width="400"/>
 
-Mit der C-Schnittstelle des Sanduhr-Modells wird dann ein anwendungsspezifisches Application Binary Interface (ABI) definiert.
-Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binarebene zwischen Programmen ausgetauscht werden, die in unterschiedlichen Sprachen kompiliert wurden.
+Mit der C-Schnittstelle des Sanduhr-Modells wird ein anwendungsspezifisches Application Binary Interface (ABI) definiert.
+Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binarebene zwischen Programmen ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden.
 Es umfasst under anderem die Aufrufkonventionen, die Speicheranordung von Datenstrukturen sowie die Namenkonventionen (Name-Mangling).
 Über dieses ABI können Funktionen, die in einer Sprache implementiert wurden, von der anderen aufgerufen werden.
 
@@ -89,15 +89,15 @@ So lassen sich Rust-Bibliotheken direkt aus C++ heraus nutzen – etwa zur schri
 
 ### cxx
 
-Das CXX-Crate verfolgt einen grundlegend anderen Ansatz.
+Das cxx-Crate verfolgt einen grundlegend anderen Ansatz.
 Anstatt eine bestehende C-Schnittstelle zu übersetzen, wird die gemeinsame Schnittstelle deklarativ in Rust definiert – mithilfe eines speziellen Makros.
-Aus dieser Beschreibung generiert CXX automatisch die passenden Bindings sowohl auf Rust- als auch auf C++-Seite.
+Aus dieser Beschreibung generiert cxx automatisch die passenden Bindings sowohl auf Rust- als auch auf C++-Seite.
 Dadurch ist sichergestellt, dass die Schnittstellen immer konsistent bleiben – auch wenn sie sich weiterentwickeln.
 
-CXX versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
-Zudem führt CXX eine statische Analyse durch, um unbeabsichtigte Datenveränderungen durch die jeweils andere Sprache zu verhindern.
+cxx versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
+Zudem führt cxx eine statische Analyse durch, um unbeabsichtigte Datenveränderungen durch die jeweils andere Sprache zu verhindern.
 So wird beispielsweise unterbunden, dass Datenstrukturen by value von C++ nach Rust übergeben werden, wenn diese durch das Move-Verhalten von Rust zu unerwarteten Modifikationen führen könnte.
-Darüber hinaus erlaubt CXX über die Verknüpfung mit C++-Templateinstanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
+Darüber hinaus erlaubt cxx über die Verknüpfung mit C++-Templateinstanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
 
 # Fazit
 
