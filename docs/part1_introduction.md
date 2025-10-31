@@ -21,9 +21,9 @@ Solche Unbekannten erschweren eine realistische Aufwandsschätzung für eine Mig
 
 Eine praxistaugliche Alternative ist deshalb die schrittweise Migration, bei welcher nur isolierte Komponenten nach Rust portiert werden und über C-Schnittstellen mit dem Legacy-Code kommunizieren.
 Besteht das Programm aus gut abgrenzbaren Komponenten, bietet der Ansatz mehere Vorteile:
-Komplexe, aber stabile oder sicherheitskritische Komponenten können bewusst später angegangen werden, wenn Zeit und Ressourcen verfügbar sind.
-Gleichzeitig sinkt das Risiko für ein Misslingen einer Migration und nach jeder erfolgreichen Teilmigration steigt die Planbarkeit weiterer Schritte.
-Zudem ist eine Teilmigration firmenpolistisch weitaus weniger heikel wie eine Vollmigration.
+* Komplexe, aber stabile oder sicherheitskritische Komponenten können bewusst später angegangen werden, wenn Zeit und Ressourcen verfügbar sind.
+* Gleichzeitig sinkt das Risiko für ein Misslingen einer Migration und nach jeder erfolgreichen Teilmigration steigt die Planbarkeit weiterer Schritte.
+* Zudem ist eine Teilmigration firmenpolistisch weitaus weniger heikel wie eine Vollmigration.
 
 Allerdings ist dieser Ansatz nicht kostenlos.
 Die C-Schnittstelle limitiert den Datenaustausch zwischen den Sprachen, was oft eine nicht triviale Umstrukturierung der Datenmodelle erfordert.
@@ -43,7 +43,7 @@ Zum Beispiel muss ein std::vector in C++ als C-Array uminterpretiert werden, um 
 Dieses Prinzip wird als *Sanduhr-Modell* (*hourglass model*) bezeichnet:
 Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den beiden Sprachen, während auf beiden Seiten komplexe und typsichere Abstraktionen in c++ und Rust bestehen bleiben können.
 
-<img src="images/hourglass_model.png" alt="hourglass_model" width="200"/>
+<img src="images/hourglass_model.png" alt="hourglass_model" width="400"/>
 
 Für ein konkretes Project wird mithilfe der C-Schnittstelle ein Application Binary Interface (ABI) definiert.
 Dieses beschreibt, wie Funktionen und Datenstrukturen auf Binärebene zwischen zwei Programmiersprachen ausgetauscht werden.
