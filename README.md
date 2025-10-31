@@ -15,6 +15,6 @@ rust-cpp-interop/
 │   ├── cxx_closure/        // Investigates Rust closures passed accross the FFI boundary using cxx
 │   └── scheduler/          // C++ example project integrated into Rust
 │                           //   The goal is to gain some practical experience with C++ Rust interop topic
-└── docs/
-    └── blogpost.md 
+└── docs/                   // Blog post series about the integration of C++ into Rust
+    └── part1_introduction.md 
 ```
