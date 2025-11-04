@@ -22,9 +22,9 @@ Solche Unbekannten erschweren eine realistische Aufwandsschätzung für eine Mig
 Eine praxistaugliche Alternative ist deshalb die schrittweise Migration, bei welcher nur isolierte Komponenten nach Rust portiert werden, um über C-Schnittstellen mit dem Legacy-Code kommunizieren.
 Besteht das Programm aus gut abgrenzbaren Komponenten, bietet der Ansatz mehere Vorteile:
 
-* Sicherheitskritische, komplexe oder legacy Komponenten können bewusst später migriert werden, wenn Zeit und Ressourcen verfügbar sind.
-* Das Risiko für ein Misslingen einer Migration sinkt und nach jeder erfolgreichen Teilmigration steigt die Planbarkeit weiterer Schritte.
-* Eine Teilmigration ist firmenpolistisch weitaus weniger heikel wie eine Vollmigration.
+* **Priorisierung**: Sicherheitskritische, komplexe oder nicht aktiv gewartete Komponenten können bewusst später migriert werden, wenn Zeit und Ressourcen verfügbar sind.
+* **Risiko-Minimierung**: Das Risiko für ein Misslingen einer Migration sinkt und nach jeder erfolgreichen Teilmigration steigt die Planbarkeit weiterer Schritte.
+* **Akzeptanz**: Eine Teilmigration ist firmenpolistisch weitaus weniger heikel wie eine Vollmigration.
 
 Allerdings ist dieser Ansatz nicht kostenlos.
 Die C-Schnittstelle limitiert den Datenaustausch zwischen den Sprachen, was oft eine nicht triviale Umstrukturierung der Datenmodelle erfordert.
@@ -32,33 +32,42 @@ Zudem reduziert sie die Entwicklungsgeschwindigkeit, da die Schnittstelle als sp
 
 Die dreiteilige Serie über die Integration von C++ in Rust führt unsere allgemeine Artikel-Serie mit der letzten Ausgabe [Rust - Moderne Softwareentwicklung mit Sicherheit und Performance](https://cudos.ch/de/news-insights/rust-moderne-softwareentwicklung-mit-sicherheit-und-performance/) weiter.
 
-1. Der erste Teil fasst die technischen Grundlagen der C++-Rust-Interoperabilität als Mittel zur schrittweisen Migration zusammen.
-2. In einem zweiten Teil, werden die Grenzen dieses Ansatzes besprochen.
-3. Der dritte Teil zeigt auf wie die Sicherheit durch Einbettung von C++ code in Rust verbessert werden kann.
+1. **Teil 1 - Interoperabilität von C++ in Rust - Grundlagen**: Der erste Teil fasst die technischen Grundlagen der C++-Rust-Interoperabilität als Mittel zur schrittweisen Migration zusammen.
+2. **Teil 2 - Grenzen der C++ und Rust Interoperabililtät**: In einem zweiten Teil, werden die Grenzen dieses Ansatzes besprochen.
+3. **Teil 3 - Sicherheit durch die Einbettung von C++ in Rust**: Der dritte Teil zeigt auf wie die Sicherheit durch Einbettung von C++ code in Rust verbessert werden kann.
 
 ## Das Sanduhr-Modell
 
-Der C++- und Rust-Code kommunizieren miteinander mittels C-kompatiblen Schnittstelle.
+Der C++- und Rust-Code kommunizieren miteinander über eine C-kompatiblen Schnittstelle.
 In C++ enspricht diese Schnittstelle einer Teilmenge der eigenen Standard-Sprachkonstrukte, während sie in Rust über das Modul `std::ffi` (Foreign Function Interface) bereitgestellt wird.
-Datentypen, die in einer Sprache definiert und in der anderen Sprache verwendet werden sollen, müssen zunächst auf C-kompatiblen Grundtypen reduziert (über eine FFI-Bridge) und in der anderen Sprache wieder zusammengebaut werden.
-Zum Beispiel muss ein `std::vector` in C++ als C-Array uminterpretiert werden, um schliesslich in Rust zu einem Vec wieder zusammengesetzt zu werden.
+Dabei müssen Datentypen, die in einer Sprache definiert und in der anderen verwendet werden sollen, zunächst auf C-kompatiblen Grundtypen reduziert (über eine sogenannte FFI-Bridge) und in der anderen Sprache wieder zusammengebaut werden.
+Zum Beispiel muss ein `std::vector` in C++ als C-Array uminterpretiert werden, um schliesslich in Rust zu einem `Vec` wieder zusammengesetzt zu werden.
 Dieses Prinzip wird als *Sanduhr-Modell* (hourglass model) bezeichnet (wie im Bild unten dargestellt):
-Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den beiden Sprachen, während die beiden Aussenseiten aus den komplexen und typsicheren Datentypen von Rust und C++ bestehen.
+Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den beiden Sprachen, während die beiden Aussenseiten aus den komplexeren Datentypen von Rust und C++ bestehen.
 
 <!-- ![hourglass_model](images/hourglass_model.png) -->
 <img src="images/hourglass_model.png" alt="hourglass_model" width="400"/>
 
-Mit der C-Schnittstelle des Sanduhr-Modells wird ein anwendungsspezifisches Application Binary Interface (ABI) definiert.
-Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binarebene zwischen Programmen ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden.
-Es umfasst under anderem die Aufrufkonventionen, die Speicheranordung von Datenstrukturen sowie die Namenkonventionen (Name-Mangling).
+Für eine spezifische Anwendung kann mithilfe der C-Schnittstelle des Sanduhr-Modells ein Application Binary Interface (ABI) definiert werden.
+Das ABI legt fest, wie Funktionen und Datenstrukturen auf Binärebene ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden.
 Über dieses ABI können Funktionen, die in einer Sprache implementiert wurden, von der anderen aufgerufen werden.
+Es definiert unter anderem die Speicheranordnung von Datenstrukturen sowie die Namenskonventionen für Funktionen und Symbole (Name-Mangling), sodass beide Seiten diesselbe binäre Darstellung verwenden.
 
-Im Gegensatz dazu beschreibt ein Application Programming Interface (API) die Schnittstelle auf Quellcode und nicht auf Binärebende.
-Diese Unterscheidung wird deutlich, wenn man den Build-Prozess betrachtet (siehe Bild):
-Rust- und C++-Compiler übersetzen ihren jeweiligen Quellcode unabhängig voneinander in Objektdateien (.o).
-Erst im zweiten Schritt werden diese Objektdateien durch den Linker zu einem gemeinsamen Binärprogramm zusammengefügt — dieser Vorgang erfolgt ohne direkte Kontrolle durch einen der Compiler.
-Während die Verlinkung von Objektdateien innerhalb einer Sprache vom jeweiligen Compiler garantiert korrekt funktioniert, ist die Verknüpfung zwischen Rust- und C++-Objekten fehleranfälliger.
-Hier muss sichergestellt werden, dass beide Seiten das gleiche ABI einhalten — sonst kann es zu undefiniertem Verhalten, Speicherfehlern oder Abstürzen kommen.
+Im Gegensatz dazu beschreibt ein Application *Programming* Interface (API) die Schnittstelle auf Quellcode- und nicht auf Binärebende.
+Diese Unterscheidung wird deutlich, wenn man den Build-Prozess betrachtet (siehe Bild oben):
+Rust- und C++-Compiler übersetzen ihren jeweiligen Quellcode unabhängig voneinander in Objektdateien (.o), welche durch den Linker in einem zweiten Schritt zu einem Binärprogramm zusammengefügt werden.
+Ein ABI beschreibt wie die Objektdateien von einer Sprache mit den Objektdateien der anderen Sprache verlinkt werden.
+Wird das ABI von einer der beiden Sprachen nicht richtig implementiert, so schlägt die Verlinkung fehl.
+Während die 
+
+Während die korrekte Definition und Anwendung einer API bereits durch den Compiler garantiert ist
+
+Sind die Objektdateien nicht miteinander kompatibel ()
+
+
+ — dieser Vorgang erfolgt ohne direkte Kontrolle durch einen Compiler.
+Während die Verlinkung von Objektdateien innerhalb einer Sprache vom jeweiligen Compiler garantiert korrekt funktioniert, ist die Verknüpfung zwischen Rust- und C++-Objekten durch fehlende Kontrolle fehleranfälliger.
+<!-- Hier muss sichergestellt werden, dass beide Seiten das gleiche ABI einhalten — sonst kann es zu undefiniertem Verhalten, Speicherfehlern oder Abstürzen kommen. -->
 
 <!-- ## Multilingualer Build-Prozess in Cargo -->
 
