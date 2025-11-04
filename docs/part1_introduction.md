@@ -35,7 +35,7 @@ Die vierteilige Serie über die Migration und Integration von C++ in Rust führt
 1. **Teil 1 - Interoperabilität zwischen C++ und Rust - Grundlagen**: Der erste Teil beleuchtet die technischen Grundlagen der Interoperabilität zwischen C++ und Rust und zeigt, wie sie als Mittel für eine schrittweisen Migration genutzt werden kann.
 2. **Teil 2 - Grenzen der C++- und Rust-Interoperabililtät**: In einem zweiten Teil, werden die Grenzen der Interoperabilität besprochen, um realistische Erwartungen zu setzen, Risiken und Abhängigkeiten frühzeitig zu erkennen und daraus fundierte Migrationsentscheidungen ableiten zu können.
 3. **Teil 3 - Sicherheit durch die Einbettung von C++ in Rust**: Der dritte Teil zeigt auf wie die Sicherheit durch Einbettung von C++ code in Rust verbessert werden kann.
-4. **Teil 4 - Automatisierte Code-Übersetzung von C++ nach Rust**: Im vierten Teil werden Werkzeuge zur automatisierten Quellcode-Migration von C++ nach Rust vorgestellt.
+4. **Teil 4 - Übersetzung von C++-Sourcecode nach Rust**: Im vierten Teil werden Werkzeuge zur automatisierten Quellcode-Migration von C++ nach Rust vorgestellt.
 
 ## Das Sanduhr-Modell
 
