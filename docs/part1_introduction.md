@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Dieser Artikel stellt der erste Beitrag zu einer vierteiligen Serie über die Integration und Migration von C++ in Rust dar.
+Dieser Artikel stellt der erste Beitrag zu einer vierteiligen Serie über die Migration und Integration von C++ in Rust dar.
 
 ## Vorwort
 
@@ -30,7 +30,7 @@ Allerdings ist dieser Ansatz nicht kostenlos.
 Die C-Schnittstelle limitiert den Datenaustausch zwischen den Sprachen, was oft eine nicht triviale Umstrukturierung der Datenmodelle erfordert.
 Zudem reduziert sie die Entwicklungsgeschwindigkeit, da die Schnittstelle als sprachübergreifender Vertrag gilt, dessen Änderung mit erheblichem Abstimmungs- und Anpassungsaufwand verbunden ist.
 
-Die vierteilige Serie über die Integration und Migration von C++ in Rust führt unsere allgemeine Artikel-Serie mit der letzten Ausgabe [Rust - Moderne Softwareentwicklung mit Sicherheit und Performance](https://cudos.ch/de/news-insights/rust-moderne-softwareentwicklung-mit-sicherheit-und-performance/) weiter.
+Die vierteilige Serie über die Migration und Integration von C++ in Rust führt unsere allgemeine Artikel-Serie mit der letzten Ausgabe [Rust - Moderne Softwareentwicklung mit Sicherheit und Performance](https://cudos.ch/de/news-insights/rust-moderne-softwareentwicklung-mit-sicherheit-und-performance/) weiter.
 
 1. **Teil 1 - Interoperabilität zwischen C++ und Rust - Grundlagen**: Der erste Teil beleuchtet die technischen Grundlagen der Interoperabilität zwischen C++ und Rust und zeigt, wie sie als Mittel für eine schrittweisen Migration genutzt werden kann.
 2. **Teil 2 - Grenzen der C++- und Rust-Interoperabililtät**: In einem zweiten Teil, werden die Grenzen der Interoperabilität besprochen, um realistische Erwartungen zu setzen, Risiken und Abhängigkeiten frühzeitig zu erkennen und daraus fundierte Migrationsentscheidungen ableiten zu können.
