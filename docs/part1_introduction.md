@@ -24,7 +24,7 @@ Besteht das Programm aus gut abgrenzbaren Komponenten, bietet der Ansatz mehrere
 
 * **Priorisierung**: Sicherheitskritische, komplexe oder nicht aktiv gewartete Komponenten können bewusst später migriert werden, wenn Zeit und Ressourcen verfügbar sind.
 * **Risiko-Minimierung**: Das Risiko für ein Misslingen einer Migration sinkt und nach jeder erfolgreichen Teilmigration steigt die Planbarkeit weiterer Schritte.
-* **Akzeptanz**: Eine Teilmigration ist firmenpolistisch weitaus weniger heikel als eine Vollmigration.
+* **Akzeptanz**: Eine Teilmigration ist firmenpolitisch weitaus weniger heikel als eine Vollmigration.
 
 Allerdings ist dieser Ansatz nicht kostenlos.
 Die C-Schnittstelle limitiert den Datenaustausch zwischen den Sprachen, was oft eine nicht triviale Umstrukturierung der Datenmodelle erfordert.
@@ -48,7 +48,7 @@ Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den 
 
 <img src="images/hourglass_model.png" alt="hourglass_model" width="400"/>
 
-Mit der C-Schnittstelle des Sanduhr-Modells wird ein anwendungsspezifisches Application Binary Interface (ABI) definiert. Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binarebene zwischen Programmen ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden. Es umfasst unter anderem die Aufrufkonventionen, die Speicheranordnung von Datenstrukturen sowie die Namenskonventionen (Name-Mangling). Über dieses ABI können Funktionen, die in einer Sprache implementiert wurden, von der anderen aufgerufen werden.
+Mit der C-Schnittstelle des Sanduhr-Modells wird ein anwendungsspezifisches Application Binary Interface (ABI) definiert. Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binärebene zwischen Programmen ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden. Es umfasst unter anderem die Aufrufkonventionen, die Speicheranordnung von Datenstrukturen sowie die Namenskonventionen (Name-Mangling). Über dieses ABI können Funktionen, die in einer Sprache implementiert wurden, von der anderen aufgerufen werden.
 
 Im Gegensatz dazu beschreibt ein Application Programming Interface (API) die Schnittstelle auf Quellcode und nicht auf Binärebene. Diese Unterscheidung wird deutlich, wenn man den Build-Prozess betrachtet (siehe Bild oben): Rust- und C++-Compiler übersetzen ihren jeweiligen Quellcode unabhängig voneinander in Objektdateien (.o). Erst im zweiten Schritt werden diese Objektdateien durch den Linker zu einem gemeinsamen Binärprogramm zusammengefügt — dieser Vorgang erfolgt ohne direkte Kontrolle durch einen der Compiler. Während die Verlinkung von Objektdateien innerhalb einer Sprache vom jeweiligen Compiler garantiert korrekt funktioniert, ist die Verknüpfung zwischen Rust- und C++-Objekten fehleranfälliger. Hier muss sichergestellt werden, dass beide Seiten das gleiche ABI einhalten — sonst kann es zu undefiniertem Verhalten, Speicherfehlern oder Abstürzen kommen.
 
@@ -87,9 +87,9 @@ Dadurch ist sichergestellt, dass die Schnittstellen immer konsistent bleiben –
 cxx versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
 Zudem führt cxx eine statische Analyse durch, um unbeabsichtigte Datenveränderungen durch die jeweils andere Sprache zu verhindern.
 So wird beispielsweise unterbunden, dass Datenstrukturen by value von C++ nach Rust übergeben werden, wenn diese durch das Move-Verhalten von Rust zu unerwarteten Modifikationen führen könnten.
-Darüber hinaus erlaubt cxx über die Verknüpfung mit C++-Templateinstanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
+Darüber hinaus erlaubt cxx über die Verknüpfung mit C++-Template-Instanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
 
-# Fazit
+## Fazit
 
 Die Interoperabilität zwischen Rust und C++ bietet ein großes Potenzial, bestehende Systeme schrittweise zu modernisieren und gleichzeitig sicherer zu gestalten.
 Die dafür notwendige Sprachschnittstelle ist jedoch fehleranfällig und sollte – wo immer möglich – automatisiert erzeugt werden, etwa mit Werkzeugen wie bindgen oder cxx, die im Fall von cxx sogar eine statische Überprüfung der Schnittstelle durchführen.
