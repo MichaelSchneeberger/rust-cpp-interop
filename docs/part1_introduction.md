@@ -72,29 +72,29 @@ Für die Interoperabilität zwischen Rust und C++ stehen heute mehrere Ansätze 
 
 ### bindgen und cbindgen
 
-Das bindgen-Crate generiert aus existierenden C-Header-Dateien (.h) automatisch die entsprechenden Rust-Funktions- und Typdefinitionen.
-In der Praxis wird C++-Code oft zunächst durch einen dünnen C-Wrapper gekapselt, aus dem bindgen die Rust-Schnittstelle ableitet.
+Das *bindgen*-Crate generiert aus existierenden C-Header-Dateien (.h) automatisch die entsprechenden Rust-Funktions- und Typdefinitionen.
+In der Praxis wird C++-Code oft zunächst durch einen dünnen C-Wrapper gekapselt, aus dem *bindgen* die Rust-Schnittstelle ableitet.
 Darauf aufbauend kann eine sichere, idiomatische Rust-API erstellt werden, die ohne manuelles Übersetzen der Funktionssignaturen auskommt.
 
-Das cbindgen-Crate funktioniert in die entgegengesetzte Richtung:
+Das *cbindgen*-Crate funktioniert in die entgegengesetzte Richtung:
 Es erzeugt aus Rust-Code automatisch eine C-kompatible Header-Datei, die von C- oder C++-Projekten eingebunden werden kann.
 So lassen sich Rust-Bibliotheken direkt aus C++ heraus nutzen – etwa zur schrittweisen Integration von Rust-Komponenten in bestehende Systeme.
 
 ### cxx
 
-Das cxx-Crate verfolgt einen grundlegend anderen Ansatz.
+Das *cxx*-Crate verfolgt einen grundlegend anderen Ansatz.
 Anstatt eine bestehende C-Schnittstelle zu übersetzen, wird die gemeinsame Schnittstelle deklarativ in Rust definiert – mithilfe eines speziellen Makros.
-Aus dieser Beschreibung generiert cxx automatisch die passenden Bindings sowohl auf Rust- als auch auf C++-Seite.
+Aus dieser Beschreibung generiert *cxx* automatisch die passenden Bindings sowohl auf Rust- als auch auf C++-Seite.
 Dadurch ist sichergestellt, dass die Schnittstellen immer konsistent bleiben – auch wenn sie sich weiterentwickeln - und potenzielle Fehler werden bereits zur Kompilierzeit erkannt.
 
-cxx versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, UniquePtr, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
-Zudem führt cxx eine statische Analyse durch, um unbeabsichtigte Datenveränderungen durch die jeweils andere Sprache zu verhindern.
+*cxx* versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, UniquePtr, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
+Zudem erzwingt *cxx* Regeln, die unbeabsichtigte Datenveränderungen durch die jeweils andere Sprache verhindern.
 So wird beispielsweise unterbunden, dass Datenstrukturen by value von C++ nach Rust übergeben werden, wenn diese durch das Move-Verhalten von Rust zu unerwarteten Modifikationen führen könnten.
-Darüber hinaus erlaubt cxx über die Verknüpfung mit C++-Template-Instanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
+Darüber hinaus erlaubt *cxx* über die Verknüpfung mit C++-Template-Instanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
 
 ## Fazit
 
 Die Interoperabilität zwischen Rust und C++ bietet ein großes Potenzial, bestehende Systeme schrittweise zu modernisieren und gleichzeitig sicherer zu gestalten.
-Die dafür notwendige Sprachschnittstelle ist jedoch fehleranfällig und sollte – wo immer möglich – automatisiert erzeugt werden, etwa mit Werkzeugen wie bindgen oder cxx, die im Fall von cxx sogar eine statische Überprüfung der Schnittstelle durchführen.
+Die dafür notwendige Sprachschnittstelle ist jedoch fehleranfällig und sollte – wo immer möglich – automatisiert erzeugt werden, etwa mit Werkzeugen wie *bindgen* oder *cxx*, die im Fall von *cxx* sogar eine statische Überprüfung der Schnittstelle durchführen.
 Trotz dieser Unterstützung bleiben gewisse Einschränkungen beim Datenaustausch zwischen den Sprachen bestehen – etwa beim Zugriff auf Stack-Variablen oder bei der Nutzung asynchroner Funktionen.
 Wie sich diese Limitierungen im Detail auswirken und welche Lösungsansätze es gibt, beleuchten wir im nächsten Teil dieser Serie.
