@@ -1,4 +1,4 @@
-# Teil 1 - Interoperabilität zwischen C++ und Rust - Grundlagen
+# Teil 1 - Interoperabilität zwischen C++ und Rust: Grundlagen
 
 ## Abstract
 
@@ -15,7 +15,7 @@ Indem Rust solche Probleme frühzeitig verhindert, steigert es nachweisbar die Z
 
 Die Migration von C++ nach Rust ist jedoch auch mit Unbekannten verbunden:
 Lässt sich der C++-Code mit einem Tool zuverlässig auf Rust übersetzen?
-Gibt es gebrauchte C++-Konstrukte, die gar keine direkte Entsprechung in Rust haben?
+Gibt es verwendete C++-Konstrukte, die gar keine direkte Entsprechung in Rust haben?
 Oder verhalten sich scheinbar äquivalente Objekte in C++ und Rust zur Laufzeit tatsächlich identisch?
 Solche Unbekannten erschweren eine realistische Aufwandsschätzung für eine Migration und können sogar zum Scheitern des Vorhabens führen.
 
@@ -32,10 +32,10 @@ Zudem reduziert sie die Entwicklungsgeschwindigkeit, da die Schnittstelle als sp
 
 Die vierteilige Serie über die Migration und Integration von C++ in Rust führt unsere allgemeine Artikel-Serie mit der letzten Ausgabe [Rust - Moderne Softwareentwicklung mit Sicherheit und Performance](https://cudos.ch/de/news-insights/rust-moderne-softwareentwicklung-mit-sicherheit-und-performance/) weiter.
 
-1. **Teil 1 - Interoperabilität zwischen C++ und Rust - Grundlagen**: Der erste Teil beleuchtet die technischen Grundlagen der Interoperabilität zwischen C++ und Rust und zeigt, wie sie als Mittel für eine schrittweise Migration genutzt werden kann.
-2. **Teil 2 - Grenzen der C++- und Rust-Interoperabilität**: In einem zweiten Teil, werden die Grenzen der Interoperabilität besprochen, um realistische Erwartungen zu setzen, Risiken und Abhängigkeiten frühzeitig zu erkennen und daraus fundierte Migrationsentscheidungen ableiten zu können.
-3. **Teil 3 - Sicherheit durch die Einbettung von C++ in Rust**: Der dritte Teil zeigt auf wie die Sicherheit durch Einbettung von C++-Code in Rust verbessert werden kann.
-4. **Teil 4 - Übersetzung von C++-Sourcecode nach Rust**: Im vierten Teil werden Werkzeuge zur automatisierten Quellcode-Migration von C++ nach Rust vorgestellt.
+1. **Teil 1 - Interoperabilität zwischen C++ und Rust: Grundlagen**: Der erste Teil beleuchtet die technischen Grundlagen der Interoperabilität zwischen C++ und Rust und zeigt, wie sie als Mittel für eine schrittweise Migration genutzt werden kann.
+2. **Teil 2 - Grenzen der C++- und Rust-Interoperabilität**: In einem zweiten Teil werden die Grenzen der Interoperabilität besprochen, um realistische Erwartungen zu setzen, Risiken und Abhängigkeiten frühzeitig zu erkennen und daraus fundierte Migrationsentscheidungen ableiten zu können.
+3. **Teil 3 - Sicherheit durch die Einbettung von C++ in Rust**: Der dritte Teil zeigt wie die Sicherheit durch Einbettung von C++-Code in Rust verbessert werden kann.
+4. **Teil 4 - Automatisierte Übersetzung von C++-Quellcode nach Rust**: Im vierten Teil werden Werkzeuge zur automatisierten Quellcode-Migration von C++ nach Rust vorgestellt.
 
 ## Das Sanduhr-Modell
 
@@ -50,14 +50,17 @@ Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den 
 
 Mit der C-Schnittstelle des Sanduhr-Modells wird ein anwendungsspezifisches Application Binary Interface (ABI) definiert. Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binärebene zwischen Programmen ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden. Es umfasst unter anderem die Aufrufkonventionen, die Speicheranordnung von Datenstrukturen sowie die Namenskonventionen (Name-Mangling). Über dieses ABI können Funktionen, die in einer Sprache implementiert wurden, von der anderen aufgerufen werden.
 
-Im Gegensatz dazu beschreibt ein Application Programming Interface (API) die Schnittstelle auf Quellcode und nicht auf Binärebene. Diese Unterscheidung wird deutlich, wenn man den Build-Prozess betrachtet (siehe Bild oben): Rust- und C++-Compiler übersetzen ihren jeweiligen Quellcode unabhängig voneinander in Objektdateien (.o). Erst im zweiten Schritt werden diese Objektdateien durch den Linker zu einem gemeinsamen Binärprogramm zusammengefügt — dieser Vorgang erfolgt ohne direkte Kontrolle durch einen der Compiler. Während die Verlinkung von Objektdateien innerhalb einer Sprache vom jeweiligen Compiler garantiert korrekt funktioniert, ist die Verknüpfung zwischen Rust- und C++-Objekten fehleranfälliger. Hier muss sichergestellt werden, dass beide Seiten das gleiche ABI einhalten — sonst kann es zu undefiniertem Verhalten, Speicherfehlern oder Abstürzen kommen.
+Im Gegensatz dazu beschreibt ein Application Programming Interface (API) die Schnittstelle auf Quellcode und nicht auf Binärebene.
+Diese Unterscheidung wird deutlich, wenn man den Build-Prozess betrachtet (siehe Bild oben): Rust- und C++-Compiler übersetzen ihren jeweiligen Quellcode unabhängig voneinander in Objektdateien (.o).
+Erst im zweiten Schritt werden diese Objektdateien durch den Linker zu einem gemeinsamen Binärprogramm zusammengefügt — dieser Vorgang erfolgt ohne direkte Kontrolle durch einen der Compiler.
+Während die Verlinkung von Objektdateien innerhalb einer Sprache vom jeweiligen Compiler garantiert korrekt funktioniert, ist die Verknüpfung zwischen Rust- und C++-Objekten fehleranfälliger.
+Hier muss sichergestellt werden, dass beide Seiten das gleiche ABI einhalten — sonst kann es zu undefiniertem Verhalten, Speicherfehlern oder Abstürzen kommen.
 
-Cargo ist das Build- und Packetverwaltungssystem von Rust - vergleichbar mit CMake für C++.
+Cargo ist das Build- und Packet-Verwaltungssystem von Rust - vergleichbar mit CMake für C++.
 Der Hauptzweck von Cargo ist das Kompilieren, Verwalten von Abhängigkeiten und Veröffentlichen von Rust-Projekten in Form von sogenannten Crates.
 Es kann aber auch Tools wie CMake integrieren, um C++-Quellcode zu kompilieren.
-So kann der ganze Rust- und C++-Buildprozess durch einen einzigen Aufruf von Cargo orchestriert werden.
-Darin enthalten ist das kompilieren von C++-Code durch CMake, das Kompilieren von Rust-Code und das Verlinken der Objektdateien.
-Der Buildprozess wird in einer dafür reservierten Datei `build.rs` definiert.
+So kann der ganze Rust- und C++-Build-Prozess durch einen einzigen Aufruf von Cargo orchestriert werden.
+Darin enthalten ist das Kompilieren von C++-Code (z.B. via CMake), das Kompilieren von Rust-Code und das Verlinken der Objektdateien.
 
 ## Werkzeuge im Überblick
 
@@ -70,7 +73,7 @@ Für die Interoperabilität zwischen Rust und C++ stehen heute mehrere Ansätze 
 ### bindgen und cbindgen
 
 Das bindgen-Crate generiert aus existierenden C-Header-Dateien (.h) automatisch die entsprechenden Rust-Funktions- und Typdefinitionen.
-In der Praxis wird C++-Code oft zunächst durch einen dünnen C-Wrapper gekapselt, aus dem bindgen dann eine Rust-Schnittstelle ableitet.
+In der Praxis wird C++-Code oft zunächst durch einen dünnen C-Wrapper gekapselt, aus dem bindgen die Rust-Schnittstelle ableitet.
 Darauf aufbauend kann eine sichere, idiomatische Rust-API erstellt werden, die ohne manuelles Übersetzen der Funktionssignaturen auskommt.
 
 Das cbindgen-Crate funktioniert in die entgegengesetzte Richtung:
@@ -84,7 +87,7 @@ Anstatt eine bestehende C-Schnittstelle zu übersetzen, wird die gemeinsame Schn
 Aus dieser Beschreibung generiert cxx automatisch die passenden Bindings sowohl auf Rust- als auch auf C++-Seite.
 Dadurch ist sichergestellt, dass die Schnittstellen immer konsistent bleiben – auch wenn sie sich weiterentwickeln - und potenzielle Fehler werden bereits zur Kompilierzeit erkannt.
 
-cxx versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
+cxx versteht gängige Standardtypen beider Sprachen (z. B. String, Vec, UniquePtr, etc.) und kann diese sicher zwischen Rust und C++ abbilden.
 Zudem führt cxx eine statische Analyse durch, um unbeabsichtigte Datenveränderungen durch die jeweils andere Sprache zu verhindern.
 So wird beispielsweise unterbunden, dass Datenstrukturen by value von C++ nach Rust übergeben werden, wenn diese durch das Move-Verhalten von Rust zu unerwarteten Modifikationen führen könnten.
 Darüber hinaus erlaubt cxx über die Verknüpfung mit C++-Template-Instanziierungen eine sichere Nutzung solcher generischen Typen auch auf Rust-Seite – ohne Speicher- oder Ownership-Verletzungen.
