@@ -36,14 +36,15 @@ The project is structured as follows:
 
 ```
 cxx_closure/
+├── examples/                   // main() function in Rust
 ├── include/
-│   ├── closure.h           // function exposed to Rust
+│   ├── closure.h               // function exposed to Rust
 ├── src/
 │   ├── closure.cpp
-│   └── main.rs             // FFI definition and C++ function call
+│   └── lib.rs                  // FFI definition using cxx
 ├── Cargo.toml
 ├── README.md
-└── build.rs                // cxx build bridge
+└── build.rs                    // defines cxx build process
 ```
 
 ## Proposed solution
