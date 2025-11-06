@@ -9,7 +9,7 @@ Dieser Artikel stellt den ersten Beitrag zu einer vierteiligen Serie über die M
 Viele Unternehmen stehen derzeit vor derselben Frage: Soll eine bestehende C++-Codebasis durch eine sichere Rust-Implementierung teilweise oder langfristig vollständig ersetzt werden?
 Gerade Hersteller mit hohen Sicherheits- oder Compliance-Anforderungen (z.B. im Kontext des EU Cyber Resilience Act) geraten zunehmend unter Druck und sind bereit gezielt in Massnahmen zur Erhöhung der Softwaresicherheit zu investieren.
 Rust bietet Sicherheitsgarantien zur Compile-Zeit, die andere Sprachen wie C++ nur durch Disziplin und Erfahrung der Programmierer erreichen können.
-Durch ein konservatives Ownership- und Borrowing-Modell schränkt Rust die Programmierfreiheit bewusst ein - mit dem Ziel, ganze Klassen von Fehlern wie ungültige Speicherzugriffe und Racing-Conditions bereits beim Kompilieren auszuschliessen.
+Durch ein konservatives Ownership- und Borrowing-Modell schränkt Rust die Programmierfreiheit bewusst ein - mit dem Ziel, ganze Klassen von Fehlern wie ungültige Speicherzugriffe und Race-Conditions bereits beim Kompilieren auszuschliessen.
 Gerade diese Fehler treten in C++ häufig nur sporadisch zur Laufzeit auf und sind schwer reproduzierbar.
 Indem Rust solche Probleme frühzeitig verhindert, steigert es nachweisbar die Zuverlässigkeit und somit auch das Vertrauen in das Produkt.
 
@@ -50,7 +50,7 @@ Die C-Schnittstelle bildet den schmalen, gemeinsamen Kern ("Hals") zwischen den 
 
 Mit der C-Schnittstelle des Sanduhr-Modells wird ein anwendungsspezifisches Application Binary Interface (ABI) definiert. Das ABI beschreibt, wie Funktionen und Datenstrukturen auf Binärebene zwischen Programmen ausgetauscht werden, welche in unterschiedlichen Sprachen kompiliert wurden. Es umfasst unter anderem die Aufrufkonventionen, die Speicheranordnung von Datenstrukturen sowie die Namenskonventionen (Name-Mangling). Über dieses ABI können Funktionen, die in einer Sprache implementiert wurden, von der anderen aufgerufen werden.
 
-Im Gegensatz dazu beschreibt ein Application Programming Interface (API) die Schnittstelle auf Quellcode und nicht auf Binärebene.
+Im Gegensatz dazu beschreibt ein Application Programming Interface (API) die Schnittstelle auf Quellcode- und nicht auf Binärebene.
 Diese Unterscheidung wird deutlich, wenn man den Build-Prozess betrachtet (siehe Bild oben): Rust- und C++-Compiler übersetzen ihren jeweiligen Quellcode unabhängig voneinander in Objektdateien (.o).
 Erst im zweiten Schritt werden diese Objektdateien durch den Linker zu einem gemeinsamen Binärprogramm zusammengefügt — dieser Vorgang erfolgt ohne direkte Kontrolle durch einen der Compiler.
 Während die Verlinkung von Objektdateien innerhalb einer Sprache vom jeweiligen Compiler garantiert korrekt funktioniert, ist die Verknüpfung zwischen Rust- und C++-Objekten fehleranfälliger.
