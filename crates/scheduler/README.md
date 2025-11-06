@@ -11,9 +11,14 @@ The goal of this project is to use `cxx` in a realistic setup.
 ```
 scheduler/
 ├── include/
-│   ├── scheduler.h             // a simple C++ ReactiveX Scheduler implementation
+│   ├── scheduler.h             // A simple C++ ReactiveX Scheduler implementation
+│   └── schedulershim.h         // A shim implementing cxx compatible interface
 ├── src/
-│   └── main.cpp                // C++ main to test the C++ implementation (standalone)
-├── CMakeLists.txt              // CMake to test the C++ implementation (standalone)
+│   ├── lib.rs                  // FFI binding using cxx
+│   └── main.cpp                // C++ main to test the C++ scheduler implementation
+├── examples/                   // main() function in Rust
+├── CMakeLists.txt              // CMake to test the C++ scheduler implementation
+├── Cargo.toml
+├── build.rs
 └── README.md
 ```
