@@ -1,6 +1,6 @@
 # Integrate *C++* into *Rust*
 
-This project investigates solutions to integrate *C++* code into *Rust*.
+This project investigates solutions to integrate and migrate *C++* code into *Rust*.
 
 ## Project structure
 
@@ -9,12 +9,11 @@ It includes Rust crates demonstrating various interop approaches and their chall
 ```
 rust-cpp-interop/
 ├── crates/
-│   ├── bindgen_build/      // Small crate illustrating the integration of C code into Rust using bindgen
-│   ├── cc_build/           // Small crate illustrating the integration of C code into Rust
-│   ├── cmake_build/        // Small crate illustrating the integration of C++ code into Rust using cmake
+│   ├── bindgen_build/      // integration of C code into Rust using bindgen
+│   ├── cc_build/           // integration of C code into Rust
+│   ├── cmake_build/        // integration of C++ code into Rust using cmake
 │   ├── cxx_closure/        // Investigates Rust closures passed accross the FFI boundary using cxx
-│   └── scheduler/          // C++ example project integrated into Rust
-│                           //   The goal is to gain some practical experience with C++ Rust interop topic
-└── docs/                   // Blog post series about the integration of C++ into Rust
+│   └── scheduler/          // C++ implemented scheduler integrated into Rust
+└── docs/
     └── part1_introduction.md 
 ```
