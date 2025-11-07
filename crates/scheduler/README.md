@@ -1,15 +1,26 @@
-# Integrate a small *C++* project into *Rust*
+# Integrating a small *C++* Project into *Rust*
 
-For this crate, a *C++* `Scheduler` implementation is integrated into *Rust*.
-The goal of this project is to use `cxx` in a realistic setup.
+This crate demonstrates how to integrate a simple *C++* implementation of a *ReactiveX* *Scheduler* into *Rust*.
+The goal is to showcase how the `cxx` crate can be used in a realistic setup.
 
 ## Usage
 
-Run the example using:
+Run the example with:
 
 ``` bash
 cargo run --example basic
 ```
+
+## Problem Description
+
+The *ReactiveX* *Scheduler* is an execution context built around a simple event loop that runs scheduled tasks.
+It is implemented as a C++ class exposing the following methods:
+* `schedule` - Schedules new tasks, either before or during loop execution
+* `start_loop` - Starts executing the event loop
+* `stop` - Stops the running loop.
+
+The central question of this example is:
+How can a *Scheduler* object be instantiated and its methods invoked from Rust?
 
 ## Project structure
 
