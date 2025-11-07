@@ -18,9 +18,12 @@ It is implemented as a C++ class exposing the following methods:
 * `schedule` - Schedules new tasks, either before or during loop execution
 * `start_loop` - Starts executing the event loop
 * `stop` - Stops the running loop.
+A task is simply defined by a closure (function object) that takes no arguments.
 
 The central question of this example is:
-How can a *Scheduler* object be instantiated and its methods invoked from Rust?
+* How can a *Scheduler* object be instantiated and its methods invoked from Rust?
+* How can a task that contains captured values be defined and scheduled on the scheduler using Rust?
+
 
 ## Project structure
 
@@ -38,3 +41,11 @@ scheduler/
 ├── build.rs                    // defines the cxx build process
 └── README.md
 ```
+
+## Proposed Solution
+
+The proposed solution introduces a shim layer that exposes an FFI-compatible interface for the *Scheduler*.
+For instance, it defines a `schedule` method that accepts a closure taking a single argument `scheduler` (even though a task takes no arguments).
+This closure is internally translated into a zero-argument closure that captures the `scheduler` object, resulting in a *Scheduler* compatible task.
+The `schedule` method of *Scheduler* is then invoked with the translated closure.
+
