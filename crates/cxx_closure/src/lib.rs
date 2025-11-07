@@ -1,9 +1,8 @@
 /*
 * Example taken from cxx github page
 *
+* The DynFun approach is taken from:
 * https://github.com/dtolnay/cxx/issues/114
-* https://github.com/dtolnay/cxx/pull/85
-* https://github.com/dtolnay/cxx/blob/6f132eee85461743fa048f1b79afc020d589f015/tests/ffi/tests.cc
 *
 * */
 
@@ -11,16 +10,13 @@
 // required to conform with the orphan rule.
 pub trait Fun {
     fn execute(&self);
-    // fn execute(self);
 }
 
 impl<F> Fun for F
 where
     F: Fn(),
-    // F: FnOnce(),
 {
     fn execute(&self) {
-    // fn execute(self) {
         self()
     }
 }
@@ -59,7 +55,6 @@ pub mod ffi {
 
         fn c_take_task(
             callback: &DynFun,
-            // callback: DynFun,
         );
     }
 }
