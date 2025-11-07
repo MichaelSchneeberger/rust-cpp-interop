@@ -49,3 +49,7 @@ For instance, it defines a `schedule` method that accepts a closure taking a sin
 This closure is internally translated into a zero-argument closure that captures the `scheduler` object, resulting in a *Scheduler* compatible task.
 The `schedule` method of *Scheduler* is then invoked with the translated closure.
 
+## References
+
+* [ReactiveX Scheduler](https://reactivex.io/documentation/scheduler.html)
+
