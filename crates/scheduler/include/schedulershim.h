@@ -13,6 +13,10 @@ void schedule(std::shared_ptr<Scheduler> s, rust::Fn<void(std::shared_ptr<Schedu
   s->schedule([t, s](){t(s);});
 }
 
+void schedule_with_ctx(std::shared_ptr<Scheduler> s, rust::Fn<void(std::shared_ptr<Scheduler>)> t, std::shared_ptr<Scheduler> ctx) {
+  s->schedule([t, ctx](){t(ctx);});
+}
+
 void start_loop(std::shared_ptr<Scheduler> s) {
   s->start_loop();
 }

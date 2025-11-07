@@ -14,15 +14,15 @@ cargo run --example basic
 ## Problem Description
 
 The *ReactiveX* *Scheduler* is an execution context built around a simple event loop that runs scheduled tasks.
-It is implemented as a C++ class `Scheduler` exposing the following methods:
+It is implemented as a *C++* class `Scheduler` exposing the following methods:
 * `schedule` - Schedules new tasks, either before or during loop execution
 * `start_loop` - Starts executing the event loop
 * `stop` - Stops the running loop.
 A task is simply defined by a closure (function object) that takes no arguments.
 
 The central question of this example is:
-* How can a `Scheduler` object be instantiated and its methods invoked from Rust?
-* How can a task that contains captured values be defined and scheduled on the scheduler using Rust?
+* How can a `Scheduler` object be instantiated and its methods invoked from *Rust*?
+* How can a task that contains captured values be defined and scheduled on the *Scheduler* using *Rust*?
 
 
 ## Project structure
