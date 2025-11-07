@@ -10,7 +10,7 @@ Run the example using:
 cargo run --example basic
 ```
 
-## Problem
+## Problem Description
 
 The concrete problem is as follows:
 Given a *Rust* closure, how can it be passed as an argument to a *C++* function?
@@ -47,7 +47,7 @@ cxx_closure/
 └── build.rs                    // defines cxx build process
 ```
 
-## Proposed solution
+## Proposed Solution
 
 The approach suggested by *Michael Bryan* (see references below) consists of two steps:
 
