@@ -1,10 +1,15 @@
 # Integrate a small *C++* project into *Rust*
 
-**The integration into *Rust* is not yet implemented**
-
 For this crate, a *C++* `Scheduler` implementation is integrated into *Rust*.
 The goal of this project is to use `cxx` in a realistic setup.
 
+## Usage
+
+Run the example using:
+
+``` bash
+cargo run --example basic
+```
 
 ## Project structure
 
