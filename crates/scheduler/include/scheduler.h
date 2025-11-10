@@ -7,8 +7,11 @@
 #include <string>
 #include <utility>
 
+// A simple task scheduler that executes move-only tasks.
 class Scheduler {
 public:
+
+  // Shared state protected by mutex
   struct SharedState {
     bool is_stopped;
     std::deque<std::move_only_function<void()>> immediate_tasks;
@@ -24,11 +27,13 @@ public:
   // Non-copyable, moveable by default (rule of zero is sufficient)
   // Copy/move operators are implicitly deleted if needed
 
+  // Add a task to the scheduler
   void schedule(std::move_only_function<void()> task) {
     std::lock_guard<std::mutex> lg(mutex);
     state.immediate_tasks.push_back(std::move(task));
   }
 
+  // Main loop: Executes tasks until the stop() method is called
   void start_loop() {
 
     while (true) {
@@ -61,6 +66,7 @@ public:
     }
   }
 
+  // Stop the scheduler loop
   void stop() {
     std::lock_guard<std::mutex> lg(mutex);
     state.is_stopped = true;
