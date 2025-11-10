@@ -42,12 +42,12 @@ scheduler/
 └── README.md
 ```
 
-## Proposed Solution
-
-The proposed solution introduces a shim layer that exposes an FFI-compatible interface for the *Scheduler*.
-For instance, it defines a `schedule` method that accepts a closure taking a single argument of type `Scheduler` (even though a task takes no arguments).
-This closure is internally translated into a zero-argument closure that captures the `Scheduler` object, resulting in a *Scheduler* compatible task.
-The `schedule` method of `Scheduler` is then invoked with the translated closure.
+<!-- ## Proposed Solution -->
+<!---->
+<!-- The proposed solution introduces a shim layer that exposes an FFI-compatible interface for the *Scheduler*. -->
+<!-- For instance, it defines a `schedule` method that accepts a closure taking a single argument of type `Scheduler` (even though a task takes no arguments). -->
+<!-- This closure is internally translated into a zero-argument closure that captures the `Scheduler` object, resulting in a *Scheduler* compatible task. -->
+<!-- The `schedule` method of `Scheduler` is then invoked with the translated closure. -->
 
 ## References
 

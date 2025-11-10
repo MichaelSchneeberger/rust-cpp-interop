@@ -4,7 +4,7 @@ This project investigates solutions to integrate and migrate *C++* code into *Ru
 
 ## Project structure
 
-It includes Rust crates demonstrating various interop approaches and their challenges, as well as a markdown summarizing our findings:
+It includes *Rust* crates demonstrating various interop approaches and their challenges, as well as a markdown files summarizing our findings:
 
 ```
 rust-cpp-interop/
