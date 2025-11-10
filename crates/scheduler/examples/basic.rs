@@ -1,10 +1,12 @@
-use scheduler::ffi;
+use scheduler::{schedule, ffi};
 
 fn main() {
     let s = ffi::new_scheduler();
-    ffi::schedule(s.clone(), |inner_s| {
+    let s_clone = s.clone();
+    schedule(s.clone(), move || {
         println!("Scheduled task says hello");
-        ffi::stop(inner_s);
+
+        ffi::stop(s_clone);
     });
     ffi::start_loop(s);
 }

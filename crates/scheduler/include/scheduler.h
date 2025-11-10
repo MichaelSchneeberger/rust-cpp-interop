@@ -11,7 +11,7 @@ class Scheduler {
 public:
   struct SharedState {
     bool is_stopped;
-    std::deque<std::function<void()>> immediate_tasks;
+    std::deque<std::move_only_function<void()>> immediate_tasks;
   };
 
   std::string name;
@@ -21,14 +21,12 @@ public:
 
   Scheduler(std::string name) : name(std::move(name)) {}
   ~Scheduler() = default;
-  // Scheduler(const Scheduler&) = default;
-  // Scheduler& operator=(const Scheduler&) = default;
-  // Scheduler(Scheduler&&) = default;
-  // Scheduler& operator=(Scheduler&&) = default;
+  // Non-copyable, moveable by default (rule of zero is sufficient)
+  // Copy/move operators are implicitly deleted if needed
 
-  void schedule(std::function<void()> task) {
+  void schedule(std::move_only_function<void()> task) {
     std::lock_guard<std::mutex> lg(mutex);
-    state.immediate_tasks.push_back(task);
+    state.immediate_tasks.push_back(std::move(task));
   }
 
   void start_loop() {
@@ -46,7 +44,7 @@ public:
       }
 
       bool has_immediate_task;
-      std::function<void()> immediate_task;
+      std::move_only_function<void()> immediate_task;
 
       {
         std::lock_guard<std::mutex> lg(mutex);

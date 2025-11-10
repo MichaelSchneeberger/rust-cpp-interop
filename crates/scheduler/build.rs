@@ -1,6 +1,6 @@
 fn main() {
     cxx_build::bridge("src/lib.rs")
-        .std("c++14")
+        .std("c++23")
         .compile("cxxbridge-demo");
 
     println!("cargo:rerun-if-changed=include/scheduler.h");
