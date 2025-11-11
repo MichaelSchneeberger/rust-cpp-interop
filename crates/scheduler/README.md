@@ -18,9 +18,10 @@ It is implemented as a *C++* class `Scheduler` exposing the following methods:
 * `schedule` - Schedules new tasks, either before or during loop execution
 * `start_loop` - Starts executing the event loop
 * `stop` - Stops the running loop.
+
 A task is simply defined by a closure (function object) that takes no arguments.
 
-The central question of this example is:
+The central question is:
 * How can a `Scheduler` object be instantiated and its methods invoked from *Rust*?
 * How can a task that contains captured values be defined and scheduled on the *Scheduler* using *Rust*?
 
@@ -42,12 +43,12 @@ scheduler/
 └── README.md
 ```
 
-<!-- ## Proposed Solution -->
-<!---->
-<!-- The proposed solution introduces a shim layer that exposes an FFI-compatible interface for the *Scheduler*. -->
-<!-- For instance, it defines a `schedule` method that accepts a closure taking a single argument of type `Scheduler` (even though a task takes no arguments). -->
-<!-- This closure is internally translated into a zero-argument closure that captures the `Scheduler` object, resulting in a *Scheduler* compatible task. -->
-<!-- The `schedule` method of `Scheduler` is then invoked with the translated closure. -->
+## Proposed Solution
+
+The proposed solution introduces a shim *schedulershim.h* that exposes an FFI-compatible interface for the *Scheduler*.
+In particular, it defines a `schedule` method that accepts a trait object `DynFuncOnce` - a wrapper of a `FnOnce` closure.
+It then calls the `schedule` function of the Scheduler, providing a C++ closure as an argument that executes a dedicated *Rust* callback function `execute_dyn_func_once`.
+This allows to schedule a *Rust* closure - containing captured values - on the C++ *Scheduler*.
 
 ## References
 
