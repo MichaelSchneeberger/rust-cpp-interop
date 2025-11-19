@@ -76,7 +76,7 @@ Ein selbstreferenzieller Datentyp ist ein Objekt, das intern einen Zeiger auf si
 In C++ kommen solche Konstrukte häufig vor – etwa bei Iteratoren und Listen, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
 C++ kann diese Objekte sicher im Speicher verschieben, weil der Move-Konstruktor dafür sorgt, dass der interne Zeiger nach dem Verschieben aktualisiert werden.
 Rust hingegen erlaubt selbstreferenzielle Datentypen nur in streng kontrollierten Situationen.
-Objekte, die nicht mehr im Speicher bewegt werden dürfen, werden als "gepinnt" markiert.
+Objekte, die nicht im Speicher bewegt werden dürfen, werden als "gepinnt" markiert.
 Beispiele dafür sind Futures oder bestimmte Generatoren.
 
 Über die FFI-Schnittstelle können jedoch selbstreferenzielle Objekte aus C++ ohne Pin-Markierung nach Rust gelangen – und genau hier entsteht ein gefährliches Missverständnis.
@@ -84,7 +84,7 @@ Rust geht davon aus, dass alle nicht gepinnten Objekte frei und bitweise verschi
 Wird ein selbstreferenzielles Objekt jedoch bitweise verschoben, bleibt der interne Zeiger unverändert und zeigt nach der Verschiebung nicht mehr auf das verschobene Objekt, sondern auf die alte Speicheradresse.
 Das Ergebnis ist zwangsläufig undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
 
-Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die zwar zum Teil durch Tools wie cxx automatisch erkennt werden, sonst aber nur durch Disziplin vermieden werden können.
+Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die zwar zum Teil durch Tools wie [cxx](https://cxx.rs/) automatisch erkennt werden, sonst aber nur durch Disziplin vermieden werden können.
 
 ## Weitere Hindernisse
 
