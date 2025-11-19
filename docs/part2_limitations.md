@@ -6,7 +6,7 @@ Dieser Artikel stellt den zweiten Beitrag zu einer vierteiligen Serie über die 
 
 ## Vorwort
 
-Wie im letzten Teil unserer Serie gezeigt wird, ist die Integration von C++ in Rust technisch möglich, geht jedoch mit Einschränkungen einher.
+Wie wir im letzten Teil unserer Serie gezeigt haben, ist die Integration von C++ in Rust technisch möglich, geht jedoch mit Einschränkungen einher.
 Diese beruhen darauf, dass die in C++ und Rust kompilierten Komponenten über eine C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren.
 Diese Schnittstelle limitiert nicht nur die Geschwindigkeit, mit der Daten zwischen den Sprachen ausgetauscht werden, sondern erhöht auch den Entwicklungsaufwand.
 Daher ist es wichtig, die Grenzen der Schnittstelle zu kennen.
@@ -17,6 +17,8 @@ Dieser zweite Teil unserer Artikelserie beleuchtet die wichtigsten technischen G
 * **Leistungseinbussen** – Eine FFI-Schicht bringt zwangsläufig gewisse Performance-Kosten mit sich.
 * **Opake Datentypen** – Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden.
 * **"Move"-Verhalten** – C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden, was zu unerwarteten Problemen führen kann.
+
+// Wie helfen Code-Generators wie bingen/cxx bei diesen Limitationen? Ich denke ein Abschnitt dazu wäre spannend, und könnte dem Artikel einen generell positiveren Spin geben.
 
 Abgerundet wird der Artikel durch weitere Hindernisse sowie ein Fazit, welches die Grenzen der Interoperabilität zusammenfasst.
 
@@ -108,7 +110,7 @@ Dies führt zwangsläufig zu zusätzlichen Hindernissen beim Umgang mit der FFI-
 Die Interoperabilität zwischen C++ und Rust ermöglicht in vielen Projekten einen schrittweisen Umstieg oder eine gezielte Kombination beider Sprachen.
 Gleichzeitig bringt dieser Ansatz jedoch technische Grenzen mit sich, die für eine realistische Aufwandsabschätzung wichtig zu verstehen sind.
 Bei einer FFI-Schnittstelle sind gewisse Leistungseinbussen unvermeidbar, da Daten über die Sprachgrenze hinweg übertragen werden.
-Im Gegenzug ist die FFI-Schnittstelle anfälliger für Fehler.
+Ebenfalls ist die FFI-Schnittstelle anfällig für Fehler, welche der Compiler nicht erkennen kann.
 Schon kleine Änderungen an den übergebenen Typen oder an der API können die Schnittstelle instabil machen.
 Zusätzlicher Aufwand entsteht auch, wenn komplexe Datentypen auf eine C-kompatible Repräsentation heruntergebrochen werden müssen.
 Zudem müssen Datentypen, die nicht direkt über die Sprachgrenze übergeben werden können, opak gehalten werden und ein definiertes ABI für deren Manipulation bereitgestellt werden.
