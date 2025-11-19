@@ -15,5 +15,6 @@ rust-cpp-interop/
 │   ├── cxx_closure/        // Investigates Rust closures passed accross the FFI boundary using cxx
 │   └── scheduler/          // C++ implemented scheduler integrated into Rust
 └── docs/
-    └── part1_introduction.md 
+    ├── part1_introduction.md
+    └── part2_limitations.md
 ```
