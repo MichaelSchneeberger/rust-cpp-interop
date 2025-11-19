@@ -73,7 +73,7 @@ Die bisher besprochenen Grenzen der Interoperabilität gelten allgemein für FFI
 Es gibt jedoch auch eine Inkompatibilität spezifisch zwischen C++ und Rust:
 Den Umgang mit selbstreferenziellen Datentypen.
 Ein selbstreferenzieller Datentyp ist ein Objekt, das intern einen Zeiger auf sich selbst enthält.
-In C++ kommen solche Konstrukte häufig vor – etwa bei Iteratoren, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
+In C++ kommen solche Konstrukte häufig vor – etwa bei Iteratoren und Listen, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
 C++ kann diese Objekte sicher im Speicher verschieben, weil der Move-Konstruktor dafür sorgt, dass der interne Zeiger nach dem Verschieben aktualisiert werden.
 Rust hingegen erlaubt selbstreferenzielle Datentypen nur in streng kontrollierten Situationen.
 Objekte, die nicht mehr im Speicher bewegt werden dürfen, werden als "gepinnt" markiert.
