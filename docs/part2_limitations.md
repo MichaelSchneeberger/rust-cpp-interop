@@ -1,4 +1,4 @@
-# Teil 2 - Grenzen der C++- und Rust-Interoperabilität
+# Teil 2 - Technische Aspekte der C++- und Rust-Interoperabilität
 
 ## Abstract
 
@@ -6,36 +6,37 @@ Dieser Artikel stellt den zweiten Beitrag zu einer vierteiligen Serie über die 
 
 ## Vorwort
 
-Wie wir im letzten Teil unserer Serie gezeigt haben, ist die Integration von C++ in Rust technisch möglich, geht jedoch mit Einschränkungen einher.
-Diese beruhen darauf, dass die in C++ und Rust kompilierten Komponenten über eine C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren.
-Diese Schnittstelle limitiert nicht nur die Geschwindigkeit, mit der Daten zwischen den Sprachen ausgetauscht werden, sondern erhöht auch den Entwicklungsaufwand.
-Daher ist es wichtig, die Grenzen der Schnittstelle zu kennen.
-Nur so lassen sich der Aufwand realistisch abschätzen, die technischen Risiken bewerten und eine fundierte Entscheidung treffen, ob und in welchem Umfang eine Integration von C++ in Rust überhaupt sinnvoll ist.
+Wie wir im ersten Teil unserer Serie gezeigt haben, bietet die Interoperabilität zwischen Rust und C++ grosses Potential bestehende Systeme schrittweise zu modernisieren und sicherer zu gestalten.
+Dank moderner Ansätze ist die Integration von C++-Komponenten in Rust heute gut realisierbar.
+Ob eine schrittweise Migration jedoch sinnvoll ist, hängt stark von den individuellen Anforderungen eines Projekts ab.
+Denn bei der Integration müssen die technische Grenzen berücksichtigt werden.
+Sie ergeben sich aus der Tatsache, dass die in C++ und Rust kompilierten Komponenten über eine C-kompatible Schnittstelle – ein sogenanntes Foreign Function Interface (FFI) – miteinander kommunizieren.
+Diese Schnittstelle beeinflusst Aspekte wie Performance, die Abbildung komplexer Datentypen sowie die Debugging-Möglichkeiten.
+Nur wenn diese Grenzen klar verstanden sind, lässt sich der Aufwand realistisch einschätzen und eine fundierte Entscheidung darüber treffen, ob und in welchem Umfang eine Integration von C++ in Rust überhaupt sinnvoll ist.
 
-Dieser zweite Teil unserer Artikelserie beleuchtet die wichtigsten technischen Grenzen der Interoperabilität. Im Fokus stehen drei zentrale Aspekte:
+In diesem zweiten Teil unserer Serie beleuchten wir die zentralen technischen Aspekte der Interoperabilität:
 
-* **Leistungseinbussen** – Eine FFI-Schicht bringt zwangsläufig gewisse Performance-Kosten mit sich.
-* **Opake Datentypen** – Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden.
-* **"Move"-Verhalten** – C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden, was zu unerwarteten Problemen führen kann.
+* **Performance** – Eine FFI-Schicht bringt zwangsläufig gewisse Performance-Kosten mit sich, welche jedoch im Vergleich zu alternativen Ansätzen oft gering ausfallen.
+* **Opake Datentypen** – Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, auf diese Daten zuzugreifen.
+* **"Move"-Verhalten** – C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Die daraus entstehenden Probleme lassen sich jedoch durch Tools wie cxx wirksam abfangen.
 
-// Wie helfen Code-Generators wie bingen/cxx bei diesen Limitationen? Ich denke ein Abschnitt dazu wäre spannend, und könnte dem Artikel einen generell positiveren Spin geben.
+Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit, das aufzeigt, wie man mit gezielten Maßnahmen die Vorteile beider Sprachen optimal kombinieren können.
 
-Abgerundet wird der Artikel durch weitere Hindernisse sowie ein Fazit, welches die Grenzen der Interoperabilität zusammenfasst.
-
-## Leistungseinbussen
+## Performance
 
 Die Einführung einer FFI-Schnittstelle führt im Idealfall nur zu geringen Leistungseinbussen.
 Auch reine C++-Programme kommunizieren intern über binäre Schnittstellen zwischen Objektdateien, die der Linker zu einem gemeinsamen Programm zusammenführt.
-Würde eine solche binäre Schnittstelle von der jeweils anderen Sprache perfekt nachgebildet, liessen sich Leistungseinbussen vollständig vermeiden.
+Würde eine solche binäre Schnittstelle von der jeweils anderen Sprache perfekt nachgebildet, liessen sich Leistungseinbussen sogar vollständig vermeiden.
 
-In der Praxis ist dieses Szenario jedoch nur schwer zu erreichen.
+In der Praxis ist dieses Szenario jedoch kaum zu erreichen.
 Zum einen sind Optimierungen des Compilers wie Inlining oder Dead-Code-Elimination über die Sprachgrenze hinweg nicht möglich, was die Performance einschränkt.
-Zum anderen müssen Objekte, die über die Sprachgrenze hinweg verwendet werden, bitgenau übereinstimmen.
-Das ist fehleranfällig und erfordert bei jeder Anpassung des binären Speicherlayouts eine sorgfältige, manuelle Anpassung auf beiden Seiten.
-Damit wächst das Risiko, dass selbst kleine Änderungen zu undefiniertem Verhalten oder subtilen Fehlern führen, welche erst spät in der Software-Release-Pipeline entdeckt werden.
+Dennoch fallen die Einbussen in der Regel deutlich kleiner aus als bei alternativen Integrationslösungen, etwa eine Interprozesskommunikation via Message-Passing.
 
+Zum anderen müssen Objekte, die über die Sprachgrenze hinweg verwendet werden, bitgenau übereinstimmen.
+Das ist fehleranfällig und erfordert bei jeder Anpassung des binären Speicherlayouts eine sorgfältige Anpassung auf beiden Seiten.
+Damit wächst das Risiko, dass selbst kleine Änderungen zu undefiniertem Verhalten oder subtilen Fehlern führen, welche erst spät in der Release-Pipeline entdeckt werden.
 Eine verbreitete Alternative ist die Verwendung opaker Datentypen, wie im nächsten Kapitel beschrieben.
-Dies erleichtert die Handhabung komplexer Objekte, ist jedoch mit zusätzlichen Leistungseinbussen verbunden.
+Dies erleichtert die Handhabung mit komplexen Objekten, bringen jedoch zusätzlichen Leistungseinbussen mit sich.
 
 ## Opake Datentypen
 
@@ -86,33 +87,23 @@ Rust geht davon aus, dass alle nicht gepinnten Objekte frei und bitweise verschi
 Wird ein selbstreferenzielles Objekt jedoch bitweise verschoben, bleibt der interne Zeiger unverändert und zeigt nach der Verschiebung nicht mehr auf das verschobene Objekt, sondern auf die alte Speicheradresse.
 Das Ergebnis ist zwangsläufig undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
 
-Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die zwar zum Teil durch Tools wie [cxx](https://cxx.rs/) automatisch erkennt werden, sonst aber nur durch Disziplin vermieden werden können.
+Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie [cxx](https://cxx.rs/) automatisch erkennt werden.
 
-## Weitere Hindernisse
+## Weitere Herausforderungen
 
-Neben den zuvor behandelten Themen gibt es eine Reihe weiterer praktischer Herausforderungen, die wir für besonders relevant halten:
+Neben den bisher behandelten Aspekten gibt es weitere praktische Punkte, die bei der Interoperabilität zwischen C++ und Rust berücksichtigt werden sollten. Werden sie frühzeitig adressiert, lassen sich reibungslose Integrationen planen und realisieren:
 
-* **Debugging** - Das Debuggen über die Sprachgrenze hinweg ist oft umständlich.
-Viele Debugger können nicht nahtlos in Funktionsaufrufe der jeweils anderen Sprache "hineinspringen".
-Unterschiedliche Calling Conventions, optimierende Compiler und eingeschränkt interpretierbare Stacktraces erschweren eine konsistente Analyse.
-* **Async** - Asynchrones Programmieren über FFI ist nur eingeschränkt möglich. Rusts async-/await-Mechanismus und C++-Futures oder Coroutinen sind nicht direkt kompatibel.
-Die Interoperabilität muss über Oneshot-Kanäle, Callbacks oder manuell verwaltete Event-Loops hergestellt werden, was zusätzlichen Aufwand und potenzielle Fehlerquellen mit sich bringt.
-* **Sanitizer** - Laufzeit-Analysewerkzeuge wie AddressSanitizer, ThreadSanitizer oder UndefinedBehaviorSanitizer arbeiten oft nur eingeschränkt über Sprachgrenzen hinweg.
-Wird ein Fehler ausgelöst, ist nicht immer klar ersichtlich, in welcher Sprache die Ursache liegt.
-* **Threading-Modelle** - Rust kann keinerlei Thread-Sicherheitsgarantien übernehmen, wenn Objekte über die FFI-Schnittstelle ausgetauscht und manipuliert werden.
-Die korrekte Benutzung der Schnittstelle muss mit der Dokumentation der Schnittstelle beschrieben und manuell korrekt umgesetzt werden.
+* **Debugging** - Das Debuggen über Sprachgrenzen hinweg erfordert besondere Aufmerksamkeit. Unterschiedliche Calling Conventions, optimierende Compiler und eingeschränkt interpretierbare Stacktraces können die Analyse erschweren. Mit passenden Tools und klaren Debugging-Richtlinien lässt sich diese Herausforderung jedoch effizient meistern.
+* **Async** - Asynchrones Programmieren über FFI erfordert eine sorgfältige Planung, da Rusts async-/await-Mechanismus und C++-Futures oder Coroutinen nicht direkt kompatibel sind. Durch Oneshot-Kanäle, Callbacks oder gut strukturierte Event-Loops lässt sich die Interoperabilität zuverlässig herstellen.
+* **Sanitizer** - Laufzeit-Analysewerkzeuge wie AddressSanitizer, ThreadSanitizer oder UndefinedBehaviorSanitizer liefern über Sprachgrenzen hinweg nicht immer vollständige Informationen. Mit angepassten Test- und Analyseprozessen können mögliche Probleme frühzeitig erkannt werden.
+* **Threading-Modelle** - Rust kann keine Thread-Sicherheitsgarantien für über FFI ausgetauschte Objekte übernehmen. Eine klare Dokumentation der Schnittstelle sowie definierte Regeln für den Zugriff auf gemeinsame Objekte sorgen jedoch für sichere Multi-Threading-Szenarien.
 
-Die Interoperabilität wird beim Design von Sprachen und deren Tooling häufig nur am Rande berücksichtigt.
-Dies führt zwangsläufig zu zusätzlichen Hindernissen beim Umgang mit der FFI-Schnittstelle, die Entwickler einplanen müssen.
+Wer diese Herausforderungen frühzeitig berücksichtigt und geeignete Strategien entwickelt, kann die Vorteile beider Sprachen optimal nutzen und die Interoperabilität stabil und effizient gestalten.
 
 ## Fazit
 
-Die Interoperabilität zwischen C++ und Rust ermöglicht in vielen Projekten einen schrittweisen Umstieg oder eine gezielte Kombination beider Sprachen.
-Gleichzeitig bringt dieser Ansatz jedoch technische Grenzen mit sich, die für eine realistische Aufwandsabschätzung wichtig zu verstehen sind.
-Bei einer FFI-Schnittstelle sind gewisse Leistungseinbussen unvermeidbar, da Daten über die Sprachgrenze hinweg übertragen werden.
-Ebenfalls ist die FFI-Schnittstelle anfällig für Fehler, welche der Compiler nicht erkennen kann.
-Schon kleine Änderungen an den übergebenen Typen oder an der API können die Schnittstelle instabil machen.
-Zusätzlicher Aufwand entsteht auch, wenn komplexe Datentypen auf eine C-kompatible Repräsentation heruntergebrochen werden müssen.
-Zudem müssen Datentypen, die nicht direkt über die Sprachgrenze übergeben werden können, opak gehalten werden und ein definiertes ABI für deren Manipulation bereitgestellt werden.
-Darüber hinaus können unerwartete Fehler auftreten, etwa durch das unterschiedliche Move-Verhalten von C++ und Rust oder durch die eingeschränkte Wirksamkeit von Analysetools über die Sprachgrenze hinweg.
-Trotz dieser Herausforderungen bietet die Kombination beider Sprachen Chancen, C++-Software gezielt zu modernisieren und in Rust sicherer zu gestalten.
+Die Interoperabilität zwischen C++ und Rust eröffnet in vielen Projekten die Möglichkeit, bestehende Systeme schrittweise zu modernisieren oder die Stärken beider Sprachen gezielt zu kombinieren. Damit dieser Ansatz maximalen Nutzen bringt, ist es jedoch wichtig, die technischen Rahmenbedingungen gut zu verstehen. So verursacht eine FFI-Schnittstelle zwar gewisse Leistungseinbußen, da Daten über die Sprachgrenze hinweg übertragen werden müssen, diese bleiben jedoch meist überschaubar und liegen deutlich unter dem Aufwand alternativer Integrationsansätze.
+
+Auch erfordert eine stabile FFI-Schnittstelle Sorgfalt bei der Definition von Datentypen und APIs, da der Compiler bestimmte Fehler über die Sprachgrenze hinweg nicht automatisch erkennen kann. Anpassungen an Strukturen oder Speicherlayouts wollen daher bewusst geplant werden, um die Stabilität zu gewährleisten.
+Wer diese Aspekte jedoch im Blick behält, schafft eine solide Basis für eine erfolgreiche Integration.
+Die Kombination beider Sprachen ermöglicht es, bestehende C++-Software gezielt zu modernisieren und sicherer zu gestalten – ein Ansatz, der sowohl technische als auch wirtschaftliche Vorteile bietet.
