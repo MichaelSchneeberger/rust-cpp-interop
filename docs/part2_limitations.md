@@ -6,19 +6,17 @@ Dieser Artikel stellt den zweiten Beitrag zu einer vierteiligen Serie über die 
 
 ## Vorwort
 
-Wie wir im ersten Teil unserer Serie gezeigt haben, bietet die Interoperabilität zwischen Rust und C++ grosses Potential bestehende Systeme schrittweise zu modernisieren und sicherer zu gestalten.
-Dank moderner Ansätze ist die Integration von C++-Komponenten in Rust heute gut realisierbar.
+Wie wir im ersten Teil unserer Serie gezeigt haben, bietet die Interoperabilität zwischen Rust und C++ grosses Potential bestehende Systeme schrittweise zu integrieren und sicherer zu gestalten.
+Dank Bibliotheken wie [cxx](https://cxx.rs/) ist die Integration von C++-Komponenten in Rust heute gut realisierbar.
 Ob eine schrittweise Migration jedoch sinnvoll ist, hängt stark von den individuellen Anforderungen eines Projekts ab.
-Denn bei der Integration müssen die technische Grenzen berücksichtigt werden.
-Sie ergeben sich aus der Tatsache, dass die in C++ und Rust kompilierten Komponenten über eine C-kompatible Schnittstelle – ein sogenanntes Foreign Function Interface (FFI) – miteinander kommunizieren.
-Diese Schnittstelle beeinflusst Aspekte wie Performance, die Abbildung komplexer Datentypen sowie die Debugging-Möglichkeiten.
-Nur wenn diese Grenzen klar verstanden sind, lässt sich der Aufwand realistisch einschätzen und eine fundierte Entscheidung darüber treffen, ob und in welchem Umfang eine Integration von C++ in Rust überhaupt sinnvoll ist.
+Entscheidend ist dabei das Verständnis der technischen Grenzen, die sich daraus ergeben, dass C++- und Rust-Komponenten über eine gemeinsame C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren müssen.
+Diese Schnittstelle beeinflusst sowohl die Performance und die Handhabung komplexer Datentypen als auch die fehlenden Compiler-Garantien und die Debugging-Möglichkeiten - Faktoren, die für die Planung und den Erfolg einer Integration entscheidend sind.
 
 In diesem zweiten Teil unserer Serie beleuchten wir die zentralen technischen Aspekte der Interoperabilität:
 
-* **Performance** – Eine FFI-Schicht bringt zwangsläufig gewisse Performance-Kosten mit sich, welche jedoch im Vergleich zu alternativen Ansätzen oft gering ausfallen.
-* **Opake Datentypen** – Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, auf diese Daten zuzugreifen.
-* **"Move"-Verhalten** – C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Die daraus entstehenden Probleme lassen sich jedoch durch Tools wie cxx wirksam abfangen.
+* **Performance** - Eine FFI-Schnittstelle bringt zwangsläufig gewisse Performance-Kosten mit sich, welche jedoch im Vergleich zu alternativen Ansätzen oft gering ausfallen.
+* **Opake Datentypen** - Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, auf diese Daten zuzugreifen.
+* **"Move"-Verhalten** - C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Die daraus entstehenden Probleme lassen sich jedoch durch Tools wie cxx wirksam abfangen.
 
 Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit, das aufzeigt, wie man mit gezielten Maßnahmen die Vorteile beider Sprachen optimal kombinieren können.
 
@@ -43,7 +41,7 @@ Dies erleichtert die Handhabung mit komplexen Objekten, bringen jedoch zusätzli
 Ein zentrales Konzept zum Verständnis der Interoperabilitätsgrenzen sind opake Datentypen.
 Zur Veranschaulichung kann man sich eine Analogie zu einem Verkaufsstand für Eismaschinen vorstellen (siehe Abbildung unten).
 Der Verkäufer und der Kunde repräsentieren die beiden Programmiersprachen, während der Verkaufsstand der FFI-Schnittstelle entspricht.
-Der Verkäufer übergibt dem Kunden das Produkt ausschliesslich über diesen Stand – genauso wie eine Sprache ein Datenobjekt über die FFI-Schnittstelle an die andere übergibt.
+Der Verkäufer übergibt dem Kunden das Produkt ausschliesslich über diesen Stand - genauso wie eine Sprache ein Datenobjekt über die FFI-Schnittstelle an die andere übergibt.
 Die Produktübergabe (also der Datenaustausch) kann auf zwei Arten erfolgen:
 
 1. **Stack-Allokation** -
@@ -76,18 +74,18 @@ Die bisher besprochenen Grenzen der Interoperabilität gelten allgemein für FFI
 Es gibt jedoch auch eine Inkompatibilität spezifisch zwischen C++ und Rust:
 Den Umgang mit selbstreferenziellen Datentypen.
 Ein selbstreferenzieller Datentyp ist ein Objekt, das intern einen Zeiger auf sich selbst enthält.
-In C++ kommen solche Konstrukte häufig vor – etwa bei Iteratoren und Listen, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
+In C++ kommen solche Konstrukte häufig vor - etwa bei Iteratoren und Listen, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
 C++ kann diese Objekte sicher im Speicher verschieben, weil der Move-Konstruktor dafür sorgt, dass der interne Zeiger nach dem Verschieben aktualisiert werden.
 Rust hingegen erlaubt selbstreferenzielle Datentypen nur in streng kontrollierten Situationen.
 Objekte, die nicht im Speicher bewegt werden dürfen, werden als "gepinnt" markiert.
 Beispiele dafür sind Futures oder bestimmte Generatoren.
 
-Über die FFI-Schnittstelle können jedoch selbstreferenzielle Objekte aus C++ ohne Pin-Markierung nach Rust gelangen – und genau hier entsteht ein gefährliches Missverständnis.
+Über die FFI-Schnittstelle können jedoch selbstreferenzielle Objekte aus C++ ohne Pin-Markierung nach Rust gelangen - und genau hier entsteht ein gefährliches Missverständnis.
 Rust geht davon aus, dass alle nicht gepinnten Objekte frei und bitweise verschiebbar sind.
 Wird ein selbstreferenzielles Objekt jedoch bitweise verschoben, bleibt der interne Zeiger unverändert und zeigt nach der Verschiebung nicht mehr auf das verschobene Objekt, sondern auf die alte Speicheradresse.
 Das Ergebnis ist zwangsläufig undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
 
-Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie [cxx](https://cxx.rs/) automatisch erkennt werden.
+Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie cxx automatisch erkennt werden.
 
 ## Weitere Herausforderungen
 
@@ -102,8 +100,10 @@ Wer diese Herausforderungen frühzeitig berücksichtigt und geeignete Strategien
 
 ## Fazit
 
-Die Interoperabilität zwischen C++ und Rust eröffnet in vielen Projekten die Möglichkeit, bestehende Systeme schrittweise zu modernisieren oder die Stärken beider Sprachen gezielt zu kombinieren. Damit dieser Ansatz maximalen Nutzen bringt, ist es jedoch wichtig, die technischen Rahmenbedingungen gut zu verstehen. So verursacht eine FFI-Schnittstelle zwar gewisse Leistungseinbußen, da Daten über die Sprachgrenze hinweg übertragen werden müssen, diese bleiben jedoch meist überschaubar und liegen deutlich unter dem Aufwand alternativer Integrationsansätze.
-
-Auch erfordert eine stabile FFI-Schnittstelle Sorgfalt bei der Definition von Datentypen und APIs, da der Compiler bestimmte Fehler über die Sprachgrenze hinweg nicht automatisch erkennen kann. Anpassungen an Strukturen oder Speicherlayouts wollen daher bewusst geplant werden, um die Stabilität zu gewährleisten.
-Wer diese Aspekte jedoch im Blick behält, schafft eine solide Basis für eine erfolgreiche Integration.
-Die Kombination beider Sprachen ermöglicht es, bestehende C++-Software gezielt zu modernisieren und sicherer zu gestalten – ein Ansatz, der sowohl technische als auch wirtschaftliche Vorteile bietet.
+Die Interoperabilität zwischen C++ und Rust eröffnet in vielen Projekten die Möglichkeit, bestehende Systeme schrittweise zu modernisieren oder die Stärken beider Sprachen gezielt zu kombinieren.
+Damit dieser Ansatz maximalen Nutzen bringt, ist es jedoch wichtig, die technischen Rahmenbedingungen gut zu verstehen.
+So verursacht eine FFI-Schnittstelle zwar gewisse Leistungseinbußen, da Daten über die Sprachgrenze hinweg übertragen werden müssen, diese fallen jedoch deutlich kleiner aus als bei alternativen Integrationsansätzen.
+Zudem erfordert die Schnittstelle sorgfältige Planung, da bestimmte Datentypen nicht direkt zwischen den Sprachen ausgetauscht werden können.
+Eine klare logische Trennung der Komponenten und einfach gehaltene Schnittstellen sind daher zentrale Erfolgsfaktoren: Sie reduzieren den Entwicklungsaufwand, minimieren Fehlerquellen und erhöhen die Stabilität der Gesamtlösung spürbar.
+Moderne Werkzeuge wie cxx unterstützen diesen Prozess zusätzlich, indem viele potenzielle Fehler bereits zur Compile-Zeit erkannt werden.
+Wer diese Aspekte im Blick behält, schafft eine robuste Grundlage für eine erfolgreiche und nachhaltige Integration beider Sprachen.
