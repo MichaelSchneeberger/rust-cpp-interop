@@ -7,12 +7,12 @@ Dank Bibliotheken wie [cxx](https://cxx.rs/) ist die Integration von C++-Kompone
 Ob eine schrittweise Migration jedoch sinnvoll ist, hängt stark von den individuellen Anforderungen eines Projekts ab.
 Entscheidend ist dabei das Verständnis der technischen Grenzen.
 Sie resultieren daraus, dass C++- und Rust-Komponenten über eine gemeinsame C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren müssen.
-Diese Schnittstelle beeinflusst sowohl die Performance und die Handhabung komplexer Datentypen als auch die fehlenden Compiler-Garantien und die Debugging-Möglichkeiten - Faktoren, die für die Planung und den Erfolg einer Integration entscheidend sind.
+Diese Schnittstelle beeinflusst sowohl die Performance und die Handhabung komplexer Datentypen als auch die fehlenden Compiler-Garantien und die Debugging-Möglichkeiten - Faktoren, die für die Risikoanalyse und Planung wichtig sind.
 
 In diesem zweiten Teil unserer Serie beleuchten wir die zentralen technischen Aspekte der Interoperabilität:
 
 * **Performance** - Eine FFI-Schnittstelle bringt zwangsläufig gewisse Performance-Kosten mit sich, welche jedoch im Vergleich zu alternativen Ansätzen oft gering ausfallen.
-* **Opake Datentypen** - Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, auf diese Daten zuzugreifen.
+* **Opake Datentypen** - Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, wie auf diese Daten zugegriffen werden kann.
 * **"Move"-Verhalten** - C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Die daraus entstehenden Probleme lassen sich jedoch durch Tools wie cxx wirksam abfangen.
 
 Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit.
@@ -43,7 +43,7 @@ Die Produktübergabe (also der Datenaustausch) kann auf zwei Arten erfolgen:
 Die Eismaschine ist modular aufgebaut und sofort verfügbar, jedoch kompliziert zu bedienen und anfällig für Störungen, wenn sie nicht korrekt gehandhabt wird.
 Dies entspricht Daten, die auf dem Stack liegen.
 Sie lassen sich sehr effizient übertragen, müssen jedoch auf Binärebene in beiden Sprachen exakt gleich dargestellt werden.
-Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zunächst auf einfache, C‑kompatible Grundtypen abgebildet werden müssen.
+Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zuerst auf einfache, C‑kompatible Grundtypen abgebildet und danach in der anderen Sprache wieder aufgebaut werden müssen.
 
 2. **Heap-Allokation** -
 Die Eismaschine ist erst später lieferbar und kann nur mithilfe des Verkäufers bedient werden (z.B. über "operate()", "check()", "clean()", siehe Abbildung), dafür ist sie aber wenig wartungsintensiv.
@@ -54,12 +54,12 @@ Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänge
 Die Verwendung von opaken Datentypen reduziert Kopplung und Fehlerrisiko.
 Änderungen an der internen Datenstruktur erfordern keine Anpassungen auf der Gegenseite, solange die FFI-Schnittstelle stabil bleibt.
 
-<img src="images/opaque_types.png" alt="opaque_type" width="600"/>
+<img src="images/opaque_types.png" alt="opaque_type" width="800"/>
 
 Ein weiterer Anwendungsfall opaker Datentypen ist die Einbindung von Datenstrukturen, deren Binärrepräsentation instabil oder vom Compiler abhängig ist.
-Dazu gehören etwa Dateien- oder Socket-Handler, Closures, Mutex-Implementierungen oder andere komplexe Laufzeitobjekte.
-Solche Typen können sich je nach Compiler, Plattform oder Version der Standardbibliothek unterscheiden und sind daher nicht zuverlässig direkt über die FFI abbildbar.
-Opake Datentypen verbergen die Compiler-abhängige interne Struktur dieser Objekte, während die Gegenseite nur über eine klar definierte API mit ihnen interagiert.
+Dazu gehören etwa Dateien- oder Socket-Handler, Closures oder andere komplexe Laufzeitobjekte.
+Solche Typen können sich je nach Compiler unterscheiden und sind daher nicht zuverlässig direkt über die FFI abbildbar.
+Opake Datentypen verbergen die Compiler-abhängige interne Struktur dieser Objekte, sodass die Gegenseite nur über eine sichere API mit ihnen interagiert.
 
 Zusammengefasst erhöhen opake Datentypen die Benutzerfreundlichkeit und Stabilität der Schnittstelle, gehen jedoch zu Lasten der Performance.
 
