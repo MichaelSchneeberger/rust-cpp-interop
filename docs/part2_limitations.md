@@ -25,7 +25,6 @@ Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit, das a
 Die Einführung einer FFI-Schnittstelle führt im Idealfall nur zu geringen Leistungseinbussen.
 Auch reine C++-Programme kommunizieren intern über binäre Schnittstellen zwischen Objektdateien, die der Linker zu einem gemeinsamen Programm zusammenführt.
 Würde eine solche binäre Schnittstelle von der jeweils anderen Sprache perfekt nachgebildet, liessen sich Leistungseinbussen sogar vollständig vermeiden.
-
 In der Praxis ist dieses Szenario jedoch kaum zu erreichen.
 Zum einen sind Optimierungen des Compilers wie Inlining oder Dead-Code-Elimination über die Sprachgrenze hinweg nicht möglich, was die Performance einschränkt.
 Dennoch fallen die Einbussen in der Regel deutlich kleiner aus als bei alternativen Integrationslösungen, etwa eine Interprozesskommunikation via Message-Passing.
@@ -34,7 +33,7 @@ Zum anderen müssen Objekte, die über die Sprachgrenze hinweg verwendet werden,
 Das ist fehleranfällig und erfordert bei jeder Anpassung des binären Speicherlayouts eine sorgfältige Anpassung auf beiden Seiten.
 Damit wächst das Risiko, dass selbst kleine Änderungen zu undefiniertem Verhalten oder subtilen Fehlern führen, welche erst spät in der Release-Pipeline entdeckt werden.
 Eine verbreitete Alternative ist die Verwendung opaker Datentypen, wie im nächsten Kapitel beschrieben.
-Dies erleichtert die Handhabung mit komplexen Objekten, bringen jedoch zusätzlichen Leistungseinbussen mit sich.
+Diese erleichtern die Handhabung mit komplexen Objekten, sie bringen jedoch zusätzlichen Leistungseinbussen mit sich.
 
 ## Opake Datentypen
 
@@ -45,19 +44,19 @@ Der Verkäufer übergibt dem Kunden das Produkt ausschliesslich über diesen Sta
 Die Produktübergabe (also der Datenaustausch) kann auf zwei Arten erfolgen:
 
 1. **Stack-Allokation** -
-Die Eismaschine ist modular aufgebaut und sofort verfügbar, jedoch anfällig für Störungen, wenn sie nicht korrekt gehandhabt wird.
+Die Eismaschine ist modular aufgebaut und sofort verfügbar, jedoch kompliziert zu bedienen und anfällig für Störungen, wenn sie nicht korrekt gehandhabt wird.
 Dies entspricht Daten, die auf dem Stack liegen.
- Sie lassen sich sehr effizient übertragen, müssen jedoch auf Binärebene in beiden Sprachen exakt gleich dargestellt werden.
+Sie lassen sich sehr effizient übertragen, müssen jedoch auf Binärebene in beiden Sprachen exakt gleich dargestellt werden.
 Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zunächst auf einfache, C‑kompatible Grundtypen abgebildet werden müssen.
 
 2. **Heap-Allokation** -
-Die Eismaschine ist erst später lieferbar, dafür aber einfach zu bedienen und wenig wartungsintensiv.
+Die Eismaschine ist erst später lieferbar und kann nur mithilfe des Verkäufers bedient werden, dafür ist sie aber wenig wartungsintensiv.
 Dies entspricht Daten, die auf dem Heap liegen.
 Die Heap-Allokation verursacht zwar spürbare Verzögerungen, ermöglicht aber, den Datentyp opak zu halten.
 Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänger erhält lediglich einen Pointer und interagiert ausschliesslich über klar definierte Funktionen.
 
 Die Verwendung von opaken Datentypen reduziert Kopplung und Fehlerrisiko.
-Änderungen an der internen Datenstruktur erfordern keine Anpassungen auf der Gegenseite, solange die öffentliche Schnittstelle stabil bleibt.
+Änderungen an der internen Datenstruktur erfordern keine Anpassungen auf der Gegenseite, solange die FFI-Schnittstelle stabil bleibt.
 
 <img src="images/opaque_types.png" alt="opaque_type" width="600"/>
 
@@ -70,10 +69,10 @@ Zusammengefasst erhöhen opake Datentypen die Benutzerfreundlichkeit und Stabili
 
 ## Move-Verhalten
 
-Die bisher besprochenen Grenzen der Interoperabilität gelten allgemein für FFI zwischen zwei Sprachen.
+Die bisher besprochenen Grenzen der Interoperabilität gelten allgemein für FFI-Schnittstellen zwischen zwei Sprachen.
 Es gibt jedoch auch eine Inkompatibilität spezifisch zwischen C++ und Rust:
 Den Umgang mit selbstreferenziellen Datentypen.
-Ein selbstreferenzieller Datentyp ist ein Objekt, das intern einen Zeiger auf sich selbst enthält.
+Ein selbstreferenzieller Datentyp ist ein Objekt, das intern einen Zeiger (Pointer) auf sich selbst enthält.
 In C++ kommen solche Konstrukte häufig vor - etwa bei Iteratoren und Listen, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
 C++ kann diese Objekte sicher im Speicher verschieben, weil der Move-Konstruktor dafür sorgt, dass der interne Zeiger nach dem Verschieben aktualisiert werden.
 Rust hingegen erlaubt selbstreferenzielle Datentypen nur in streng kontrollierten Situationen.
@@ -83,7 +82,7 @@ Beispiele dafür sind Futures oder bestimmte Generatoren.
 Über die FFI-Schnittstelle können jedoch selbstreferenzielle Objekte aus C++ ohne Pin-Markierung nach Rust gelangen - und genau hier entsteht ein gefährliches Missverständnis.
 Rust geht davon aus, dass alle nicht gepinnten Objekte frei und bitweise verschiebbar sind.
 Wird ein selbstreferenzielles Objekt jedoch bitweise verschoben, bleibt der interne Zeiger unverändert und zeigt nach der Verschiebung nicht mehr auf das verschobene Objekt, sondern auf die alte Speicheradresse.
-Das Ergebnis ist zwangsläufig undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
+Das Ergebnis ist undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
 
 Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie cxx automatisch erkennt werden.
 
@@ -104,6 +103,6 @@ Die Interoperabilität zwischen C++ und Rust eröffnet in vielen Projekten die M
 Damit dieser Ansatz maximalen Nutzen bringt, ist es jedoch wichtig, die technischen Rahmenbedingungen gut zu verstehen.
 So verursacht eine FFI-Schnittstelle zwar gewisse Leistungseinbußen, da Daten über die Sprachgrenze hinweg übertragen werden müssen, diese fallen jedoch deutlich kleiner aus als bei alternativen Integrationsansätzen.
 Zudem erfordert die Schnittstelle sorgfältige Planung, da bestimmte Datentypen nicht direkt zwischen den Sprachen ausgetauscht werden können.
-Eine klare logische Trennung der Komponenten und einfach gehaltene Schnittstellen sind daher zentrale Erfolgsfaktoren: Sie reduzieren den Entwicklungsaufwand, minimieren Fehlerquellen und erhöhen die Stabilität der Gesamtlösung spürbar.
+Eine klare, logische Trennung der Komponenten und einfach gehaltene Schnittstellen sind daher zentrale Erfolgsfaktoren: Sie reduzieren den Entwicklungsaufwand, minimieren Fehlerquellen und erhöhen die Stabilität der Gesamtlösung.
 Moderne Werkzeuge wie cxx unterstützen diesen Prozess zusätzlich, indem viele potenzielle Fehler bereits zur Compile-Zeit erkannt werden.
 Wer diese Aspekte im Blick behält, schafft eine robuste Grundlage für eine erfolgreiche und nachhaltige Integration beider Sprachen.
