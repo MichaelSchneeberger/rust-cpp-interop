@@ -1,15 +1,12 @@
 # Teil 2 - Technische Aspekte der C++- und Rust-Interoperabilität
 
-## Abstract
-
-Dieser Artikel stellt den zweiten Beitrag zu einer vierteiligen Serie über die Migration und Integration von C++ in Rust dar.
-
 ## Vorwort
 
 Wie wir im ersten Teil unserer Serie gezeigt haben, bietet die Interoperabilität zwischen Rust und C++ grosses Potential bestehende Systeme schrittweise zu integrieren und sicherer zu gestalten.
 Dank Bibliotheken wie [cxx](https://cxx.rs/) ist die Integration von C++-Komponenten in Rust heute gut realisierbar.
 Ob eine schrittweise Migration jedoch sinnvoll ist, hängt stark von den individuellen Anforderungen eines Projekts ab.
-Entscheidend ist dabei das Verständnis der technischen Grenzen, die sich daraus ergeben, dass C++- und Rust-Komponenten über eine gemeinsame C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren müssen.
+Entscheidend ist dabei das Verständnis der technischen Grenzen.
+Sie resultieren daraus, dass C++- und Rust-Komponenten über eine gemeinsame C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren müssen.
 Diese Schnittstelle beeinflusst sowohl die Performance und die Handhabung komplexer Datentypen als auch die fehlenden Compiler-Garantien und die Debugging-Möglichkeiten - Faktoren, die für die Planung und den Erfolg einer Integration entscheidend sind.
 
 In diesem zweiten Teil unserer Serie beleuchten wir die zentralen technischen Aspekte der Interoperabilität:
@@ -18,7 +15,7 @@ In diesem zweiten Teil unserer Serie beleuchten wir die zentralen technischen As
 * **Opake Datentypen** - Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, auf diese Daten zuzugreifen.
 * **"Move"-Verhalten** - C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Die daraus entstehenden Probleme lassen sich jedoch durch Tools wie cxx wirksam abfangen.
 
-Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit, das aufzeigt, wie man mit gezielten Maßnahmen die Vorteile beider Sprachen optimal kombinieren können.
+Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit.
 
 ## Performance
 
@@ -28,7 +25,6 @@ Würde eine solche binäre Schnittstelle von der jeweils anderen Sprache perfekt
 In der Praxis ist dieses Szenario jedoch kaum zu erreichen.
 Zum einen sind Optimierungen des Compilers wie Inlining oder Dead-Code-Elimination über die Sprachgrenze hinweg nicht möglich, was die Performance einschränkt.
 Dennoch fallen die Einbussen in der Regel deutlich kleiner aus als bei alternativen Integrationslösungen, etwa eine Interprozesskommunikation via Message-Passing.
-
 Zum anderen müssen Objekte, die über die Sprachgrenze hinweg verwendet werden, bitgenau übereinstimmen.
 Das ist fehleranfällig und erfordert bei jeder Anpassung des binären Speicherlayouts eine sorgfältige Anpassung auf beiden Seiten.
 Damit wächst das Risiko, dass selbst kleine Änderungen zu undefiniertem Verhalten oder subtilen Fehlern führen, welche erst spät in der Release-Pipeline entdeckt werden.
@@ -50,7 +46,7 @@ Sie lassen sich sehr effizient übertragen, müssen jedoch auf Binärebene in be
 Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zunächst auf einfache, C‑kompatible Grundtypen abgebildet werden müssen.
 
 2. **Heap-Allokation** -
-Die Eismaschine ist erst später lieferbar und kann nur mithilfe des Verkäufers bedient werden, dafür ist sie aber wenig wartungsintensiv.
+Die Eismaschine ist erst später lieferbar und kann nur mithilfe des Verkäufers bedient werden (z.B. über "operate()", "check()", "clean()", siehe Abbildung), dafür ist sie aber wenig wartungsintensiv.
 Dies entspricht Daten, die auf dem Heap liegen.
 Die Heap-Allokation verursacht zwar spürbare Verzögerungen, ermöglicht aber, den Datentyp opak zu halten.
 Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänger erhält lediglich einen Pointer und interagiert ausschliesslich über klar definierte Funktionen.
@@ -84,11 +80,11 @@ Rust geht davon aus, dass alle nicht gepinnten Objekte frei und bitweise verschi
 Wird ein selbstreferenzielles Objekt jedoch bitweise verschoben, bleibt der interne Zeiger unverändert und zeigt nach der Verschiebung nicht mehr auf das verschobene Objekt, sondern auf die alte Speicheradresse.
 Das Ergebnis ist undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
 
-Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie cxx automatisch erkennt werden.
+Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie cxx automatisch erkannt werden.
 
 ## Weitere Herausforderungen
 
-Neben den bisher behandelten Aspekten gibt es weitere praktische Punkte, die bei der Interoperabilität zwischen C++ und Rust berücksichtigt werden sollten. Werden sie frühzeitig adressiert, lassen sich reibungslose Integrationen planen und realisieren:
+Neben den bisher behandelten Aspekten gibt es weitere praktische Punkte, die bei der Interoperabilität zwischen C++ und Rust berücksichtigt werden sollten:
 
 * **Debugging** - Das Debuggen über Sprachgrenzen hinweg erfordert besondere Aufmerksamkeit. Unterschiedliche Calling Conventions, optimierende Compiler und eingeschränkt interpretierbare Stacktraces können die Analyse erschweren. Mit passenden Tools und klaren Debugging-Richtlinien lässt sich diese Herausforderung jedoch effizient meistern.
 * **Async** - Asynchrones Programmieren über FFI erfordert eine sorgfältige Planung, da Rusts async-/await-Mechanismus und C++-Futures oder Coroutinen nicht direkt kompatibel sind. Durch Oneshot-Kanäle, Callbacks oder gut strukturierte Event-Loops lässt sich die Interoperabilität zuverlässig herstellen.
