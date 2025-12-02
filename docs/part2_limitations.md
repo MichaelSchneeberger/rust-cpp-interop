@@ -7,13 +7,13 @@ Dank Bibliotheken wie [cxx](https://cxx.rs/) ist die Integration von C++-Kompone
 Ob eine schrittweise Migration jedoch sinnvoll ist, hängt stark von den individuellen Anforderungen eines Projekts ab.
 Entscheidend ist dabei das Verständnis der technischen Grenzen.
 Sie resultieren daraus, dass C++- und Rust-Komponenten über eine gemeinsame C-kompatible Schnittstelle - ein sogenanntes Foreign Function Interface (FFI) - kommunizieren müssen.
-Diese Schnittstelle beeinflusst sowohl die Performance und die Handhabung komplexer Datentypen als auch die fehlenden Compiler-Garantien und die Debugging-Möglichkeiten - Faktoren, die für die Risikoanalyse und Planung wichtig sind.
+Diese Schnittstelle beeinflusst sowohl die Performance und die Handhabung komplexer Datentypen als auch die fehlenden Compiler-Garantien und die Debugging-Möglichkeiten - Faktoren, die für die Risikoanalyse und Planung einer Integration wichtig sind.
 
 In diesem zweiten Teil unserer Serie beleuchten wir die zentralen technischen Aspekte der Interoperabilität:
 
 * **Performance** - Eine FFI-Schnittstelle bringt zwangsläufig gewisse Performance-Kosten mit sich, welche jedoch im Vergleich zu alternativen Ansätzen oft gering ausfallen.
 * **Opake Datentypen** - Manche Datenstrukturen lassen sich nicht direkt über das FFI abbilden und müssen daher als opake Typen eingekapselt werden. Dies führt zu Einschränkungen hinsichtlich der Möglichkeit, wie auf diese Daten zugegriffen werden kann.
-* **"Move"-Verhalten** - C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Die daraus entstehenden Probleme lassen sich jedoch durch Tools wie cxx wirksam abfangen.
+* **"Move"-Verhalten** - C++ und Rust unterscheiden sich grundlegend darin, wie Objekte verschoben und referenziert werden. Beim Übergeben solcher Objekte über Sprachgrenzen hinweg kann es daher zu unerwartetem Verhalten kommen. Mit Tools wie cxx lassen sich diese Probleme jedoch wirksam abfangen.
 
 Abgerundet wird der Artikel durch weitere Herausforderungen und ein Fazit.
 
@@ -29,7 +29,7 @@ Zum anderen müssen Objekte, die über die Sprachgrenze hinweg verwendet werden,
 Das ist fehleranfällig und erfordert bei jeder Anpassung des binären Speicherlayouts eine sorgfältige Anpassung auf beiden Seiten.
 Damit wächst das Risiko, dass selbst kleine Änderungen zu undefiniertem Verhalten oder subtilen Fehlern führen, welche erst spät in der Release-Pipeline entdeckt werden.
 Eine verbreitete Alternative ist die Verwendung opaker Datentypen, wie im nächsten Kapitel beschrieben.
-Diese erleichtern die Handhabung mit komplexen Objekten, sie bringen jedoch zusätzlichen Leistungseinbussen mit sich.
+Diese erleichtern die Handhabung mit komplexen Objekten, sie bringen jedoch zusätzliche Leistungseinbussen mit sich.
 
 ## Opake Datentypen
 
@@ -43,13 +43,13 @@ Die Produktübergabe (also der Datenaustausch) kann auf zwei Arten erfolgen:
 Die Eismaschine ist modular aufgebaut und sofort verfügbar, jedoch kompliziert zu bedienen und anfällig für Störungen, wenn sie nicht korrekt gehandhabt wird.
 Dies entspricht Daten, die auf dem Stack liegen.
 Sie lassen sich sehr effizient übertragen, müssen jedoch auf Binärebene in beiden Sprachen exakt gleich dargestellt werden.
-Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zuerst auf einfache, C‑kompatible Grundtypen abgebildet und danach in der anderen Sprache wieder aufgebaut werden müssen.
+Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zuerst auf einfache, C‑kompatible Grundtypen abgebildet und danach in der anderen Sprache wieder rekonstruiert werden müssen.
 
 2. **Heap-Allokation** -
 Die Eismaschine ist erst später lieferbar und kann nur mithilfe des Verkäufers bedient werden (z.B. über "operate()", "check()", "clean()", siehe Abbildung), dafür ist sie aber wenig wartungsintensiv.
 Dies entspricht Daten, die auf dem Heap liegen.
 Die Heap-Allokation verursacht zwar spürbare Verzögerungen, ermöglicht aber, den Datentyp opak zu halten.
-Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänger erhält lediglich einen Pointer und interagiert ausschliesslich über klar definierte Funktionen.
+Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänger erhält lediglich einen Pointer und interagiert ausschliesslich über klar definiertes Funktionen-Interface.
 
 Die Verwendung von opaken Datentypen reduziert Kopplung und Fehlerrisiko.
 Änderungen an der internen Datenstruktur erfordern keine Anpassungen auf der Gegenseite, solange die FFI-Schnittstelle stabil bleibt.
@@ -80,7 +80,7 @@ Rust geht davon aus, dass alle nicht gepinnten Objekte frei und bitweise verschi
 Wird ein selbstreferenzielles Objekt jedoch bitweise verschoben, bleibt der interne Zeiger unverändert und zeigt nach der Verschiebung nicht mehr auf das verschobene Objekt, sondern auf die alte Speicheradresse.
 Das Ergebnis ist undefiniertes Verhalten, das sich schwer debuggen lässt und potenziell sicherheitskritische Fehler verursacht.
 
-Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten, die aber durch Tools wie cxx automatisch erkannt werden.
+Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten. Diese können aber durch Tools wie cxx automatisch erkannt werden.
 
 ## Weitere Herausforderungen
 
