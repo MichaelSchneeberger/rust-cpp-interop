@@ -49,7 +49,7 @@ Zudem entsteht bei komplexen Datenstrukturen zusätzlicher Aufwand, weil sie zue
 Die Eismaschine ist erst später lieferbar und kann nur mithilfe des Verkäufers bedient werden (z.B. über "operate()", "check()", "clean()", siehe Abbildung), dafür ist sie aber wenig wartungsintensiv.
 Dies entspricht Daten, die auf dem Heap liegen.
 Die Heap-Allokation verursacht zwar spürbare Verzögerungen, ermöglicht aber, den Datentyp opak zu halten.
-Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänger erhält lediglich einen Pointer und interagiert ausschliesslich über klar definiertes Funktionen-Interface.
+Dies bedeutet, dass das Speicherlayout der Daten verborgen bleibt; der Empfänger erhält lediglich einen Pointer und interagiert ausschliesslich über ein klar definiertes Funktionen-Interface.
 
 Die Verwendung von opaken Datentypen reduziert Kopplung und Fehlerrisiko.
 Änderungen an der internen Datenstruktur erfordern keine Anpassungen auf der Gegenseite, solange die FFI-Schnittstelle stabil bleibt.
@@ -70,7 +70,7 @@ Es gibt jedoch auch eine Inkompatibilität spezifisch zwischen C++ und Rust:
 Den Umgang mit selbstreferenziellen Datentypen.
 Ein selbstreferenzieller Datentyp ist ein Objekt, das intern einen Zeiger (Pointer) auf sich selbst enthält.
 In C++ kommen solche Konstrukte häufig vor - etwa bei Iteratoren und Listen, aber auch bei Strings oder Vektoren können sie je nach Compiler nicht ausgeschlossen werden.
-C++ kann diese Objekte sicher im Speicher verschieben, weil der Move-Konstruktor dafür sorgt, dass der interne Zeiger nach dem Verschieben aktualisiert werden.
+C++ kann diese Objekte sicher im Speicher verschieben, weil der Move-Konstruktor dafür sorgt, dass der interne Zeiger nach dem Verschieben aktualisiert wird.
 Rust hingegen erlaubt selbstreferenzielle Datentypen nur in streng kontrollierten Situationen.
 Objekte, die nicht im Speicher bewegt werden dürfen, werden als "gepinnt" markiert.
 Beispiele dafür sind Futures oder bestimmte Generatoren.
@@ -83,8 +83,6 @@ Das Ergebnis ist undefiniertes Verhalten, das sich schwer debuggen lässt und po
 Zusammengefasst können durch die FFI-Schnittstelle unvorhergesehene Fehlerfälle auftreten. Diese können aber durch Tools wie cxx automatisch erkannt werden.
 
 ## Weitere Herausforderungen
-
-Neben den bisher behandelten Aspekten gibt es weitere praktische Punkte, die bei der Interoperabilität zwischen C++ und Rust berücksichtigt werden sollten:
 
 * **Debugging** - Das Debuggen über Sprachgrenzen hinweg erfordert besondere Aufmerksamkeit. Unterschiedliche Calling Conventions, optimierende Compiler und eingeschränkt interpretierbare Stacktraces können die Analyse erschweren. Mit passenden Tools und klaren Debugging-Richtlinien lässt sich diese Herausforderung jedoch effizient meistern.
 * **Async** - Asynchrones Programmieren über FFI erfordert eine sorgfältige Planung, da Rusts async-/await-Mechanismus und C++-Futures oder Coroutinen nicht direkt kompatibel sind. Durch Oneshot-Kanäle, Callbacks oder gut strukturierte Event-Loops lässt sich die Interoperabilität zuverlässig herstellen.
