@@ -108,12 +108,12 @@ public:
 
         bool is_delayed_task_due;
         std::move_only_function<void()> due_task;
-        // DateTime duetime;
         if (has_delayed_task) {
             if (duetime < std::chrono::system_clock::now()) {
               is_delayed_task_due = true;
               auto delayed_task = std::move(const_cast<DelayedTask&>(state.delayed_tasks.top()));
               due_task = std::move(delayed_task.task);
+              state.delayed_tasks.pop();
             }
             else {
               is_delayed_task_due = false;
@@ -125,7 +125,6 @@ public:
 
           if (is_delayed_task_due) {
             state.immediate_tasks.push_back(std::move(due_task));
-            state.delayed_tasks.pop();
           } else {
             if (state.immediate_tasks.empty()) {
               if (has_delayed_task) {

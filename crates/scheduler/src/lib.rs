@@ -1,5 +1,9 @@
-// This trait represents a thin wrapper of the "Fn" trait, 
-// required to conform with the orphan rule.
+use std::ops::FnOnce;
+
+// This trait represents a thin wrapper of the "FnOnce" trait, 
+// required to conform with the orphan rule:
+// Traits (i.e., FnOnce()) defined outside the current crate cannot be implemented 
+// for types (i.e., Box<dyn FnOnce()>) defined outside of the crate.
 // See https://github.com/dtolnay/cxx/issues/114
 pub trait FunOnce {
     fn execute(self: Box<Self>);
@@ -14,7 +18,8 @@ where
     }
 }
 
-pub type DynFunOnce = Box<dyn FunOnce>;
+// pub type DynFunOnce = Box<dyn FunOnce>;
+pub type DynFunOnce = Box<dyn FnOnce()>;
 
 fn execute_dyn_fun_once(f: Box<DynFunOnce>) {
     f.execute()
@@ -36,7 +41,6 @@ pub mod ffi {
 
         fn new_scheduler() -> SharedPtr<Scheduler>;
         fn schedule(s: SharedPtr<Scheduler>, t: Box<DynFunOnce>);
-        // fn schedule_with_ctx(s: SharedPtr<Scheduler>, t: fn(SharedPtr<Scheduler>), ctx: SharedPtr<Scheduler>);
         fn start_loop(s: SharedPtr<Scheduler>);
         fn stop(s: SharedPtr<Scheduler>);
     }
