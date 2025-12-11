@@ -18,8 +18,7 @@ where
     }
 }
 
-// pub type DynFunOnce = Box<dyn FunOnce>;
-pub type DynFunOnce = Box<dyn FnOnce()>;
+pub type DynFunOnce = Box<dyn FunOnce>;
 
 fn execute_dyn_fun_once(f: Box<DynFunOnce>) {
     f.execute()
